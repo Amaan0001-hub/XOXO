@@ -1,0 +1,326 @@
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+ 
+
+/* =========================
+   SEARCH + SUMMARY SECTION
+========================= */
+
+.search-tab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+/* Summary Card */
+.summary-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 260px;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.summary-value { 
+  font-weight: 700;
+  background: linear-gradient(90deg, #7133db, #e33dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Search */
+.search-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 280px;
+}
+
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 48px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* =========================
+   TABLE LAYOUT
+========================= */
+
+.table-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.income-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.income-table th {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  background:var(--bg-hover);
+  color:var(--text-2);
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color); white-space: nowrap;
+}
+
+.income-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+      white-space: nowrap;
+}
+
+.income-table tr:hover td {
+  background: rgba(59, 130, 246, 0.05);
+      white-space: nowrap;
+}
+
+.credit-positive {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.debit-negative {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+/* =========================
+   TABS
+========================= */
+
+.tabs-container {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  min-width: max-content;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 40px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.tab-btn.active {
+  background: #7133db;
+  color: white;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+ 
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-btn {
+  padding: 0.65rem 1.25rem;
+  background: linear-gradient(135deg, #7133db 0%, #5e2fb8 100%);
+  border: 1px solid rgba(113, 51, 219, 0.3);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(113, 51, 219, 0.25);
+  white-space: nowrap;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8145ff 0%, #7133db 100%);
+  box-shadow: 0 6px 20px rgba(113, 51, 219, 0.4);
+  transform: translateY(-2px);
+}
+
+.page-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(113, 51, 219, 0.3);
+}
+
+.page-btn:disabled {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+.page-number {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .search-tab {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrapper {
+    justify-content: flex-start;
+  }
+
+  .search-container {
+    max-width: 100%;
+  }
+
+  .summary-card {
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .search-tab {
+    gap: 0.75rem;
+  }
+
+  .summary-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .summary-value {
+    font-size: 1.3rem;
+  }
+
+  .search-input {
+    font-size: 0.85rem;
+    padding: 0.65rem 1rem 0.65rem 2.5rem;
+  }
+
+  .income-table th,
+  .income-table td {
+    padding: 0.75rem 1rem;
+       
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .summary-label {
+    font-size: 0.7rem;
+  }
+
+  .summary-value {
+    font-size: 1.1rem;
+  }
+}
