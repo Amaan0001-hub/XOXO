@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getEncryptedLocalData, AuthLogin } from "@/app/api/auth";
 import {
+  getProfileDetails,
   sendWithdrawalOtpRequest,
   validateOtp,
 } from "@/app/redux/slices/authSlice";
@@ -92,7 +93,21 @@ const WithdrawalRequest = () => {
       .required("OTP is required")
       .length(6, "OTP must be 6 digits"),
   }), [walletType]);
+  const profileDataLoading = async () => {
+    try {
+      const result = await dispatch(getProfileDetails()).unwrap();
+      if (result) {
+        const user = result?.[0] || result.payload;
+        setEmail(user.Email || "");
+      }
+    } catch (e) {
+      console.log("err =>", e);
+    }
+  };
 
+  useEffect(() => {
+    profileDataLoading();
+  }, []);
   useEffect(() => {
     const AuthId = AuthLogin();
     if (AuthId) {
@@ -169,27 +184,16 @@ const WithdrawalRequest = () => {
 
     if (isOtpSent) return;
 
-    const emailId = getEmailId();
-    if (!emailId) {
-      toast.error("Email not found. Please try again.");
-      return;
-    }
-
-    const otpData = {
-      emailId,
-      walletAddress: formik.values.walletAddress,
-    };
-
     setIsOtpLoading(true);
     try {
       const toastId = toast.loading("Sending OTP...");
-      const otpResult = await dispatch(sendWithdrawalOtpRequest(otpData)).unwrap();
+      const otpResult = await dispatch(sendWithdrawalOtpRequest()).unwrap();
 
       if (otpResult.statusCode === 200) {
         toast.dismiss(toastId);
 
         setIsOtpSent(true);
-        toast.success(otpResult.message);
+        toast.success(otpResult?.data?.message);
 
         setPendingWithdrawalData({
           amount: formik.values.amount,
@@ -209,46 +213,15 @@ const WithdrawalRequest = () => {
     }
   };
 
-  const fnValidateOtp = async (otp) => {
-    const urid = getUserId();
-    const data = { urid, otp };
 
-    try {
-      const result = await dispatch(validateOtp(data)).unwrap();
-      if (result.statusCode === 200) {
-        return true;
-      } else {
-        toast.error(result.message || "Invalid OTP");
-        return false;
-      }
-    } catch (e) {
-      toast.error(e?.message || "OTP validation failed");
-      return false;
-    }
-  };
 
-  //Hardcoded OTP for testing purposes
-  // const fnValidateOtp = async (otp) => {
-  //   if (otp === "123456") {
-  //     return true;
-  //   }
-
-  //   toast.error("Invalid OTP");
-  //   return false;
-  // };
-  // const fnSendOTP = async () => {
-  //   setIsOtpSent(true);
-
-  //   formik.setFieldValue("otp", "123456");
-
-  //   toast.success("OTP is 123456");
-  // };
+ 
   const fnSendWithdrawalRequest = async (values) => {
     const withdrawalData = {
-      urid: urid,
+      withdrawalotp: values.otp,
       secureCode: "xoxofx#4343%ReliGence#22023",
       ipAddress: ipAddress,
-      amount: values.amount,
+      amount: parseInt(values.amount),
       emailid: email,
       walletAdress: values.walletAddress,
       payMode: 1,
@@ -297,11 +270,11 @@ const WithdrawalRequest = () => {
     },
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
-        const isOtpValid = await fnValidateOtp(values.otp);
-        if (!isOtpValid) {
-          setSubmitting(false);
-          return;
-        }
+        // const isOtpValid = await fnValidateOtp(values.otp);
+        // if (!isOtpValid) {
+        //   setSubmitting(false);
+        //   return;
+        // }
 
         const withdrawalSuccess = await fnSendWithdrawalRequest(values);
 

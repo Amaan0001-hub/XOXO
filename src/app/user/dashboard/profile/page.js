@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import { doLogout, getToken, getUserId } from '@/app/api/auth';
-import { getAllCountry, getUserDashboardDetails, sendOtpFundRequest, validateOtp, sendOtpRequestwalletaddress, updatePassword } from '@/app/redux/slices/authSlice';
+import { getAllCountry, getUserDashboardDetails, sendOtpFundRequest, validateOtp, sendOtpRequestwalletaddress, updatePassword, getProfileDetails } from '@/app/redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { useDispatch as useReduxDispatch } from 'react-redux';
@@ -60,11 +60,7 @@ export default function Profile() {
   const [loginId, setLoginId] = useState("");
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState('');
-  const [twoFA, setTwoFA] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoCompound, setAutoCompound] = useState(false);
-  const [riskAlerts, setRiskAlerts] = useState(true);
-  const [withdrawal2FA, setWithdrawal2FA] = useState(true);
+
   const [userData, setUserData] = useState(null);
   const [greetingTime, setGreetingTime] = useState('');
   const [walletAddress, setWalletAddress] = useState("");
@@ -87,7 +83,7 @@ export default function Profile() {
   const [isPasswordOtpVerified, setIsPasswordOtpVerified] = useState(false);
 
   const token = getToken();
-  const { getAllCountryData, UserdashboardData } = useSelector((state) => state.auth);
+  const { getAllCountryData, UserdashboardData, profileData } = useSelector((state) => state.auth);
 
 
   // Password change formik
@@ -104,7 +100,7 @@ export default function Profile() {
         setIsPasswordLoading(true);
         setPasswordError(null);
         const data = {
-          userId: AuthEmail,
+          userId: loginId,
           oldPassword: values.oldPassword,
           newPass: values.newPassword
         };
@@ -112,10 +108,7 @@ export default function Profile() {
         if (result.statusCode === 200) {
           toast.success(result.message);
           passwordFormik.resetForm();
-          // Reset OTP states after successful password change
-          setIsPasswordOtpSent(false);
-          setIsPasswordOtpVerified(false);
-          setPasswordOtp("");
+          
         } else if (result.statusCode === 409) {
           toast.error(result.message);
         } else if (result.error) {
@@ -129,49 +122,53 @@ export default function Profile() {
       }
     }
   });
+  const profileDataLoading = async () => {
+    try {
+      const result = await dispatch(getProfileDetails()).unwrap();
+      // Agar thunk response me data aa raha hai
+      if (result) {
 
-  useEffect(() => {
-    // Load user data from localStorage
-    const storedData = localStorage.getItem('currentUserPlain');
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        const user = parsedData.userData;
-
+        const user = result?.[0] || result.payload;
         setUserData(user);
 
-        // Bind user data to form fields
-        setfName(user.FName || '');
-        setlastName(user.LName || '');
-        setEmail(user.Email || '');
-        setPhone(user.Mobile || '');
-        setCountry(user.CountryId || '');
+        setfName(user.FName || "");
+        setlastName(user.LName || "");
+        setEmail(user.Email || "");
+        setPhone(user.Mobile || "");
+        setCountry(user.CountryId || "");
         setWalletAddress(user.WalletBep20 || "");
         setOriginalWallet(user.WalletBep20 || "");
         setLoginId(user.AuthLogin || "");
         setAddress(user.Address || "");
 
-        // Check if wallet was previously set
+        // Check wallet
         if (user.WalletBep20 && isValidBep20Length(user.WalletBep20)) {
           setIsWalletSet(true);
         }
 
-        // Set greeting based on time of day
+        // Greeting
         const hour = new Date().getHours();
-        if (hour < 12) setGreetingTime('Good morning');
-        else if (hour < 18) setGreetingTime('Good afternoon');
-        else setGreetingTime('Good evening');
-      } catch (error) {
-        console.error('Error parsing user data:', error);
+
+        if (hour < 12) {
+          setGreetingTime("Good morning");
+        } else if (hour < 18) {
+          setGreetingTime("Good afternoon");
+        } else {
+          setGreetingTime("Good evening");
+        }
       }
+    } catch (e) {
+      console.log("err =>", e);
     }
+  };
+
+  useEffect(() => {
+    profileDataLoading();
   }, []);
 
   useEffect(() => {
-    const userURID = getUserId();
     dispatch(getAllCountry());
-    if (!userURID) return;
-    dispatch(getUserDashboardDetails(userURID));
+    dispatch(getUserDashboardDetails());
   }, [dispatch]);
   const kid = UserdashboardData?.[0]?.Kid;
 
@@ -212,15 +209,12 @@ export default function Profile() {
     try {
       setIsOtpLoading(true);
       const response = await dispatch(
-        sendOtpRequestwalletaddress({
-          emailId: email,
-          walletAddress: walletAddress,
-        })
+        sendOtpRequestwalletaddress()
       ).unwrap();
 
       if (response?.statusCode === 200) {
         setIsOtpSent(true);
-        toast.success("OTP sent to your email");
+        toast.success(response?.data?.message || "OTP sent to your email");
       } else {
         toast.error(response?.message || "Failed to send OTP");
       }
@@ -265,71 +259,8 @@ export default function Profile() {
     }
   };
 
-  const handleVerifyPasswordOtp = async () => {
-    try {
-      if (!passwordOtp) {
-        setPasswordOtpError("Please enter the OTP");
-        return;
-      }
-      const otpResponse = await dispatch(
-        validateOtp({
-          urid: getUserId(),
-          otp: passwordOtp.trim(),
-        })
-      ).unwrap();
+ 
 
-      if (otpResponse?.statusCode === 200) {
-        setIsPasswordOtpVerified(true);
-        setPasswordOtpError("");
-        toast.success("OTP verified successfully! You can now change your password.");
-      } else {
-        toast.error(otpResponse?.message || "Invalid OTP");
-        setIsPasswordOtpVerified(false);
-      }
-    } catch (e) {
-      toast.error(e?.message || "Invalid OTP");
-      setIsPasswordOtpVerified(false);
-    }
-  };
-
-  //Harcoded OTP TEsting
-  // const handleSendPasswordOtp = () => {
-  //   const { oldPassword, newPassword, confirmPassword } = passwordFormik.values;
-
-  //   if (!oldPassword || !newPassword || !confirmPassword) {
-  //     toast.error("Please fill all password fields first");
-  //     return;
-  //   }
-
-  //   setIsPasswordOtpLoading(true);
-
-  //   setTimeout(() => {
-  //     setIsPasswordOtpSent(true);
-  //     setPasswordOtp("222222"); // Password OTP
-  //     toast.success("Password OTP Sent");
-  //     setIsPasswordOtpLoading(false);
-  //   }, 500);
-  // };
-  // const handleVerifyPasswordOtp = () => {
-  //   if (passwordOtp === "222222") {
-  //     setIsPasswordOtpVerified(true);
-  //     setPasswordOtpError("");
-  //     toast.success("OTP Verified Successfully");
-  //   } else {
-  //     setPasswordOtpError("Invalid OTP");
-  //     toast.error("Invalid OTP");
-  //   }
-  // };
-  // const handleSendOtp = () => {
-  //   setIsOtpLoading(true);
-
-  //   setTimeout(() => {
-  //     setIsOtpSent(true);
-  //     setOtp("111111"); // Profile OTP
-  //     toast.success("Profile OTP Sent");
-  //     setIsOtpLoading(false);
-  //   }, 500);
-  // };
   const saveChanges = async () => {
     const walletChanged = originalWallet !== walletAddress;
 
@@ -354,39 +285,13 @@ export default function Profile() {
     try {
       setIsSaveLoading(true);
 
-      // Validate OTP if wallet changed
-      if (walletChanged && isOtpSent && otp) {
-        const otpResponse = await dispatch(
-          validateOtp({
-            urid: getUserId(),
-            otp: otp.trim(),
-          })
-        ).unwrap();
-
-        if (otpResponse?.statusCode !== 200) {
-          toast.error(otpResponse?.message || "Invalid OTP");
-          setIsSaveLoading(false);
-          return;
-        }
-      }
-
+  
       if (!userData) return;
 
       // Find the selected country object to get its ID
       const selectedCountry = getAllCountryData?.data?.find(
         (c) => c.country_Name === parseInt(country)
       );
-
-      const updatedUserData = {
-        ...userData,
-        FName: fName,
-        LName: lastName,
-        Email: email,
-        Mobile: phone,
-        Address: address,
-        country_Id: selectedCountry?.country_Id,
-        WalletBep20: walletAddress,
-      };
 
       const payload = {
         loginID: loginId,
@@ -397,11 +302,12 @@ export default function Profile() {
         mobile: phone,
         countryid: parseInt(country) || null,
         walletBep20: walletAddress,
+        updateprofileotp: otp
       };
 
       // Call update profile API
       const response = await fetch(
-        'https://app.xoxofx.com/api/Authentication/updateUserProfile',
+        'https://smtpmails.online/api/Authentication/updateUserProfile',
         {
           method: 'POST',
           headers: {
@@ -414,7 +320,7 @@ export default function Profile() {
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (result.statusCode !== 200) {
         throw new Error(result.message || 'Failed to update profile');
       }
 
@@ -423,14 +329,11 @@ export default function Profile() {
         localStorage.getItem('currentUserPlain') || '{}'
       );
 
-      storedData.userData = updatedUserData;
-
       localStorage.setItem(
         'currentUserPlain',
         JSON.stringify(storedData)
       );
 
-      setUserData(updatedUserData);
       setOriginalWallet(walletAddress);
 
       // Set wallet as set if it's valid
@@ -442,7 +345,7 @@ export default function Profile() {
       setIsOtpSent(false);
       setOtp("");
 
-      toast.success('Profile updated successfully');
+      toast.success(result.message || 'Profile updated successfully');
     } catch (error) {
       console.error('Update Profile Error:', error);
       toast.error(error.message || 'Something went wrong');
@@ -812,31 +715,7 @@ export default function Profile() {
                       paddingTop: "16px"
                     }}>
                       {/* Send OTP Button - Only show if OTP not sent */}
-                      {!isPasswordOtpSent && (
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <button
-                            type="button"
-                            onClick={handleSendPasswordOtp}
-                            disabled={!arePasswordFieldsFilled() || isPasswordOtpLoading}
-                            style={{
-                              padding: "8px 24px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              color: "#fff",
-                              background: (!arePasswordFieldsFilled() || isPasswordOtpLoading) ? "#d1d5db" : "#672ACA",
-                              border: "none",
-                              borderRadius: "6px",
-                              cursor: (!arePasswordFieldsFilled() || isPasswordOtpLoading) ? "not-allowed" : "pointer",
-                              transition: "all 0.2s",
-                              height: "38px",
-                            }}
-                          >
-                            {isPasswordOtpLoading ? "Sending OTP..." : "Send OTP"}
-                          </button>
-                        </div>
-                      )}
-
-                      {/* OTP Input + Verify - Show after OTP sent */}
+                    
                       {isPasswordOtpSent && !isPasswordOtpVerified && (
                         <div style={{
                           background: "#faf9fc",
@@ -881,7 +760,6 @@ export default function Profile() {
                             />
                             <button
                               type="button"
-                              onClick={handleVerifyPasswordOtp}
                               disabled={isPasswordOtpLoading || !passwordOtp}
                               style={{
                                 padding: "0 22px",
@@ -930,7 +808,7 @@ export default function Profile() {
                       )}
 
                       {/* Change Password Button - Show after OTP verified */}
-                      {isPasswordOtpVerified && (
+                      {/* {isPasswordOtpVerified && ( */}
                         <button
                           type="submit"
                           disabled={isPasswordLoading}
@@ -950,7 +828,7 @@ export default function Profile() {
                         >
                           {isPasswordLoading ? 'Updating...' : 'Change Password'}
                         </button>
-                      )}
+                      {/* )} */}
                     </div>
                   </form>
 

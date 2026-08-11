@@ -29,29 +29,28 @@ const WalletStatement = () => {
 
  
   useEffect(() => {
-    if (userId) dispatch(getAllWalletTransType(userId));
-  }, [dispatch, userId]);
+      dispatch(getAllWalletTransType());
+  }, [dispatch]);
 
   // Reset type & fetch report when tab changes
   useEffect(() => {
     setSelectedTransType("");
     setCurrentPage(1);
     setSearchTerm("");
-    if (userId) fetchReportForTab(activeTab, "");
-  }, [activeTab, userId]);
+    fetchReportForTab(activeTab, "");
+  }, [activeTab]);
 
   // Fetch report when selectedTransType changes
   useEffect(() => {
-    if (userId && activeTab) {
+    if (activeTab) {
       fetchReportForTab(activeTab, selectedTransType);
     }
   }, [selectedTransType]);
 
   const fetchReportForTab = (tab, transtype) => {
-    const payload = { urid: userId, transtype: transtype || "" };
+    const payload = { transtype: transtype || "" };
 
     const withdrawalPayload = {
-      urid: userId,
       transtype: "withdrawal",
       type: withdrawalType
     }

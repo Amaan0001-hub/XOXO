@@ -31,7 +31,7 @@ const TeamReferral = () => {
         binarytree: "Tree View",
         Downline: "Downline Team",
         AffiliateTree: "Affiliate Tree",
-    };  
+    };
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -44,24 +44,22 @@ const TeamReferral = () => {
 
     const userId = getUserId();
     const teamParams = {
-        urid: getUserId(),
+        // urid: getUserId(),
         statusId: "",
         loginid: ""
     };
 
     useEffect(() => {
-        if (userId) {
-            dispatch(GetDirectMember(teamParams));
-        }
-    }, [dispatch, userId]);
+        dispatch(GetDirectMember(teamParams));
+    }, [dispatch]);
 
     // Fetch Dashboard Data when Summary tab is clicked
     useEffect(() => {
-        if (activeTab === "Summary" && userId) {
+        if (activeTab === "Summary") {
             const fetchDashboardDetails = async () => {
                 setIsLoadingDashboard(true);
                 try {
-                    const result = await dispatch(getUserSummaryDetails(userId)).unwrap();
+                    const result = await dispatch(getUserSummaryDetails()).unwrap();
                     if (result) {
                         setDashboardData(result);
                     }
@@ -73,7 +71,7 @@ const TeamReferral = () => {
             };
             fetchDashboardDetails();
         }
-    }, [activeTab, userId, dispatch]);
+    }, [activeTab, dispatch]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -85,7 +83,7 @@ const TeamReferral = () => {
         const topupStatus = member.topup?.toString().trim().toLowerCase();
         if (teamStatus === "active") return topupStatus === "activated";
         if (teamStatus === "inactive") return topupStatus !== "activated";
-        return true; 
+        return true;
     }).filter((member) => {
         if (!searchTerm.trim()) return true;
         const searchLower = searchTerm.toLowerCase().trim();
@@ -411,7 +409,7 @@ const TeamReferral = () => {
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
-                            }} 
+                            }}
                             className="search-input"
                         />
                     </div>

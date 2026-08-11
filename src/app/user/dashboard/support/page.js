@@ -64,7 +64,7 @@ const SupportContent = () => {
     ticketType: "",
     subject: "",
     message: "",
-    urid: userId || "",
+    // urid: userId || "",
     image: null,
   };
 
@@ -74,7 +74,7 @@ const SupportContent = () => {
     data.append("Subject", values.subject);
     data.append("Message", values.message);
     data.append("Seen", 1);
-    data.append("URID", values.urid);
+    // data.append("URID", values.urid);
     if (values.image) {
       data.append("ImagePath", values.image);
     }
@@ -86,7 +86,7 @@ const SupportContent = () => {
         if (result.data) {
           dispatch(addTicketToList(result.data));
         } else {
-          await dispatch(getAllTicketBYURID(userId));
+          await dispatch(getAllTicketBYURID());
         }
         setIsSuccess(true);
         setShowForm(false);

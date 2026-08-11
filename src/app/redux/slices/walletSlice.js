@@ -21,7 +21,7 @@ export const getAllWalletTransType = createAsyncThunk(
   async (urid, { rejectWithValue }) => {
     try {
       const response = await getRequestWithToken(
-        `${API_ENDPOINTS.GET_ALL_WALLET_TRANS_TYPE}?URID=${urid}`
+        `${API_ENDPOINTS.GET_ALL_WALLET_TRANS_TYPE}`
       );
       return response.data;
     } catch (error) {

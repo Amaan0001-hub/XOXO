@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { usernameByLoginId } from "@/app/redux/slices/fundManagerSlice";
 import Cookies from "js-cookie";
-import { sendOtpFundRequest, validateOtp } from "@/app/redux/slices/authSlice";
+import { getProfileDetails, sendOtpFundRequest, validateOtp } from "@/app/redux/slices/authSlice";
 import { fundTransferDepositToDeposit } from "@/app/redux/slices/fundManagerSlice";
 import { getfundTransferDepositToDepositReport } from "@/app/redux/slices/fundManagerSlice";
 import toast from "react-hot-toast";
@@ -34,14 +34,28 @@ const UserTransfer = () => {
     getIncomeToDepositWalletReportData?.walletBalance[0]?.DepositWallet;
   const [otpError, setOtpError] = useState("");
 
+  const profileDataLoading = async () => {
+    try {
+      const result = await dispatch(getProfileDetails()).unwrap();
+      if (result) {
+        const user = result?.[0] || result.payload;
+        setEmail(user?.Email);
+      }
+    } catch (e) {
+      console.log("err =>", e);
+    }
+  };
+
+  useEffect(() => {
+    profileDataLoading();
+  }, []);
   useEffect(() => {
     if (usernameData) {
-      setName(usernameData.name);
+      setName(usernameData?.data?.name);
     }
     const urid = getUserId();
     const emailId = getEmailId();
     setUrid(urid);
-    setEmail(emailId);
   }, [usernameData]);
 
   useEffect(() => {
@@ -153,12 +167,12 @@ const UserTransfer = () => {
       return;
     }
     if (isOtpSent) return;
-    const data = { emailId: email };
+    // const data = { emailId: email };
     try {
-      const result = await dispatch(sendOtpFundRequest(data)).unwrap();
+      const result = await dispatch(sendOtpFundRequest()).unwrap();
       if (result.statusCode === 200) {
         setIsOtpSent(true);
-        toast.success(result.message);
+        toast.success(result?.data?.message);
       }
     } catch (e) {
       setOtpError("Failed to send OTP. Please try again.");
@@ -166,26 +180,11 @@ const UserTransfer = () => {
     }
   };
 
-  const fnValidateOtp = async (otp) => {
-    const data = { urid, otp: String(otp) };
-    try {
-      const result = await dispatch(validateOtp(data)).unwrap();
-      if (result.statusCode === 200) {
-        return true;
-      } else {
-        toast.error(result.message || "Invalid OTP");
-        return false;
-      }
-    } catch (e) {
-      toast.error(e?.message || "OTP validation failed");
-      return false;
-    }
-  };
 
   const validationSchema = Yup.object({
     userId: Yup.string()
       .required("Username is required")
-      .test("not-self-transfer", "Cannot transfer to your own account", function(value) {
+      .test("not-self-transfer", "Cannot transfer to your own account", function (value) {
         const authLogin = AuthLogin();
         return value !== authLogin;
       }),
@@ -198,7 +197,7 @@ const UserTransfer = () => {
       .test(
         'min-amount',
         'Amount must be at least 1',
-        function(value) {
+        function (value) {
           if (!value) return true;
           const amountNum = parseFloat(value);
           return !isNaN(amountNum) && amountNum >= 1;
@@ -217,28 +216,29 @@ const UserTransfer = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setOtpError("");
-    const isOtpValid = await fnValidateOtp(values.otp);
-    if (!isOtpValid) {
-      setSubmitting(false);
-      return;
-    }
+   
     const data = {
-      urid: urid,
+      email: email || "",
       authLoginReciver: values.userId,
-      trnsamount: values.amount,
+      trnsamount: parseInt(values.amount),
+      p2potp: values.otp || ""
     };
     try {
       const result = await dispatch(
         fundTransferDepositToDeposit(data)
       ).unwrap();
       if (result.statusCode === 200) {
+        console.log("result====>", result)
         toast.success(result.message);
         await dispatch(getfundTransferDepositToDepositReport());
         resetForm();
         setName("");
         setIsOtpSent(false);
+      } else {
+        toast.error(result.message);
       }
     } catch (e) {
+
       console.error("Transfer failed:", e);
     } finally {
       setSubmitting(false);
@@ -508,7 +508,7 @@ const UserTransfer = () => {
                               cell.column.columnDef.cell,
                               cell.getContext()
                             )}
-                           </td>
+                          </td>
                         ))}
                       </tr>
                     ))
@@ -516,7 +516,7 @@ const UserTransfer = () => {
                     <tr>
                       <td colSpan={columns.length} className="no-data-cell">
                         No data available
-                       </td>
+                      </td>
                     </tr>
                   )}
                 </tbody>
