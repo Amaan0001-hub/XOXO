@@ -213,40 +213,8 @@ const WithdrawalRequest = () => {
     }
   };
 
-  // const fnValidateOtp = async (otp) => {
-  //   const urid = getUserId();
-  //   const data = { urid, otp };
 
-  //   try {
-  //     const result = await dispatch(validateOtp(data)).unwrap();
-  //     if (result.statusCode === 200) {
-  //       return true;
-  //     } else {
-  //       toast.error(result.message || "Invalid OTP");
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     toast.error(e?.message || "OTP validation failed");
-  //     return false;
-  //   }
-  // };
 
-  //Hardcoded OTP for testing purposes
-  // const fnValidateOtp = async (otp) => {
-  //   if (otp === "123456") {
-  //     return true;
-  //   }
-
-  //   toast.error("Invalid OTP");
-  //   return false;
-  // };
-  // const fnSendOTP = async () => {
-  //   setIsOtpSent(true);
-
-  //   formik.setFieldValue("otp", "123456");
-
-  //   toast.success("OTP is 123456");
-  // };
  
   const fnSendWithdrawalRequest = async (values) => {
     const withdrawalData = {

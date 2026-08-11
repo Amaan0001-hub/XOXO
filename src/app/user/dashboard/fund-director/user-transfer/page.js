@@ -180,21 +180,6 @@ const UserTransfer = () => {
     }
   };
 
-  // const fnValidateOtp = async (otp) => {
-  //   const data = { urid, otp: String(otp) };
-  //   try {
-  //     const result = await dispatch(validateOtp(data)).unwrap();
-  //     if (result.statusCode === 200) {
-  //       return true;
-  //     } else {
-  //       toast.error(result.message || "Invalid OTP");
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     toast.error(e?.message || "OTP validation failed");
-  //     return false;
-  //   }
-  // };
 
   const validationSchema = Yup.object({
     userId: Yup.string()
@@ -231,11 +216,7 @@ const UserTransfer = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setOtpError("");
-    // const isOtpValid = await fnValidateOtp(values.otp);
-    // if (!isOtpValid) {
-    //   setSubmitting(false);
-    //   return;
-    // }
+   
     const data = {
       email: email || "",
       authLoginReciver: values.userId,

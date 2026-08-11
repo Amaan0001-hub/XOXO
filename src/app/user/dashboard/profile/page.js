@@ -108,10 +108,7 @@ export default function Profile() {
         if (result.statusCode === 200) {
           toast.success(result.message);
           passwordFormik.resetForm();
-          // Reset OTP states after successful password change
-          // setIsPasswordOtpSent(false);
-          // setIsPasswordOtpVerified(false);
-          // setPasswordOtp("");
+          
         } else if (result.statusCode === 409) {
           toast.error(result.message);
         } else if (result.error) {
@@ -262,33 +259,7 @@ export default function Profile() {
     }
   };
 
-  // const handleVerifyPasswordOtp = async () => {
-  //   try {
-  //     if (!passwordOtp) {
-  //       setPasswordOtpError("Please enter the OTP");
-  //       return;
-  //     }
-  //     const otpResponse = await dispatch(
-  //       validateOtp({
-  //         urid: getUserId(),
-  //         otp: passwordOtp.trim(),
-  //       })
-  //     ).unwrap();
-
-  //     if (otpResponse?.statusCode === 200) {
-  //       setIsPasswordOtpVerified(true);
-  //       setPasswordOtpError("");
-  //       toast.success("OTP verified successfully! You can now change your password.");
-  //     } else {
-  //       toast.error(otpResponse?.message || "Invalid OTP");
-  //       setIsPasswordOtpVerified(false);
-  //     }
-  //   } catch (e) {
-  //     toast.error(e?.message || "Invalid OTP");
-  //     setIsPasswordOtpVerified(false);
-  //   }
-  // };
-
+ 
 
   const saveChanges = async () => {
     const walletChanged = originalWallet !== walletAddress;
@@ -744,31 +715,7 @@ export default function Profile() {
                       paddingTop: "16px"
                     }}>
                       {/* Send OTP Button - Only show if OTP not sent */}
-                      {/* {!isPasswordOtpSent && (
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <button
-                            type="button"
-                            onClick={handleSendPasswordOtp}
-                            disabled={!arePasswordFieldsFilled() || isPasswordOtpLoading}
-                            style={{
-                              padding: "8px 24px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              color: "#fff",
-                              background: (!arePasswordFieldsFilled() || isPasswordOtpLoading) ? "#d1d5db" : "#672ACA",
-                              border: "none",
-                              borderRadius: "6px",
-                              cursor: (!arePasswordFieldsFilled() || isPasswordOtpLoading) ? "not-allowed" : "pointer",
-                              transition: "all 0.2s",
-                              height: "38px",
-                            }}
-                          >
-                            {isPasswordOtpLoading ? "Sending OTP..." : "Send OTP"}
-                          </button>
-                        </div>
-                      )} */}
-
-                      {/* OTP Input + Verify - Show after OTP sent */}
+                    
                       {isPasswordOtpSent && !isPasswordOtpVerified && (
                         <div style={{
                           background: "#faf9fc",
@@ -813,7 +760,6 @@ export default function Profile() {
                             />
                             <button
                               type="button"
-                              // onClick={handleVerifyPasswordOtp}
                               disabled={isPasswordOtpLoading || !passwordOtp}
                               style={{
                                 padding: "0 22px",
