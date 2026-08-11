@@ -4,12 +4,10 @@ import { ChevronRight, ChevronLeft, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthLogin } from "@/app/api/auth";
 import { LeftRightDownline } from "@/app/redux/slices/fundManagerSlice";
-import { getUserId } from "@/app/api/auth";
 
 const DownlineMember = ({ isDownline = false }) => {
     const dispatch = useDispatch();
     const authLogin = AuthLogin();
-    const userId = getUserId();
 
     const { LeftRightDownlineData, loading, error } = useSelector(
         (state) => state?.fund || {}
@@ -23,7 +21,6 @@ const DownlineMember = ({ isDownline = false }) => {
     const itemsPerPage = 10;
 
     const [teamParams, setTeamParams] = useState({
-        urid: userId || authLogin?.urid || "",
         side: "",
         kid: 0,
         fromdate: "",
@@ -33,7 +30,6 @@ const DownlineMember = ({ isDownline = false }) => {
     const fetchDownline = async (sideValue) => {
         try {
             const params = {
-                urid: userId || authLogin?.urid || "",
                 side: sideValue,
                 kid: 0,
                 fromdate: "",
@@ -47,10 +43,8 @@ const DownlineMember = ({ isDownline = false }) => {
     };
 
     useEffect(() => {
-        if (userId || authLogin?.urid) {
-            fetchDownline("");
-        }
-    }, [dispatch, userId, authLogin]);
+        fetchDownline("");
+    }, [dispatch, authLogin]);
 
     const handleSideChange = (side) => {
         setSelectedSide(side);

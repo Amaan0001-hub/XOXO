@@ -22,7 +22,7 @@ const API_ENDPOINTS = {
   USER_REGISTRATION: "/Authentication/userRegistration",
   SEND_OTP: "/Authentication/sendOtp",
   FORGOT_PASSWORD: "/Authentication/forgotPassword",
-  SENT_WITHDRAWAL_OTP_REQUEST: "/Authentication/sendOtpWithdrawalRequest",
+  SENT_WITHDRAWAL_OTP_REQUEST: "/SMTPServices/sendOtpwithdrawalEmail",
   GET_ADMIN_USER_DETAILS: "/AdminAuthentication/getAdminUserDetails",
   GET_USER_ALL_CHATS_ADMIN: "/ChatMaster/getUserAllChatsAdmin",
   CHAT_MSG_BY_ID_ADMIN: "/ChatMaster/chatMsgByIdAdmin",
@@ -30,11 +30,12 @@ const API_ENDPOINTS = {
   GET_BY_REFREAL_ID: "/Authentication/getByReferralId",
   GET_ALL_COUNTRY: "/Geography/getAllCountry",
   VALIDATE_OTP: "/Authentication/validateOtp",
-  SEND_OTP_REQUEST: "/Authentication/sendOtpFundRequest",
-  SEND_OTP_REQUEST_WITHDRWAL: "/Authentication/sendOtpUserProfile",
+  SEND_OTP_REQUEST: "/SMTPServices/sendOtpptwoptrasferEmail",
+  SEND_OTP_REQUEST_WITHDRWAL: "/SMTPServices/sendOtpUpdateProfile",
   GET_USER_DASHBOARD_DETAILS: "/Authentication/userDashboardDetails",
   UPDATE_USER_PROFILE: "/Authentication/updateUserProfile",
   UPDATE_PASSWORD:"/Authentication/changePassword",
+  GET_PROFILE_DETAILS: '/WalletReport/getProfileDetails'
 };
 
 export const appLogin = createAsyncThunk(
@@ -279,11 +280,10 @@ export const sendOtpRequest = createAsyncThunk(
 
 export const sendOtpFundRequest = createAsyncThunk(
   "auth/sendOtpFundRequest",
-  async (data, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await postRequestWithToken(
         API_ENDPOINTS.SEND_OTP_REQUEST,
-        data
       );
       return response;
     } catch (error) {
@@ -297,11 +297,10 @@ export const sendOtpFundRequest = createAsyncThunk(
 
 export const sendOtpRequestwalletaddress = createAsyncThunk(
   "auth/sendOtpRequestwalletaddress",
-  async (data, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await postRequestWithToken(
         API_ENDPOINTS.SEND_OTP_REQUEST_WITHDRWAL,
-        data
       );
       return response;
     } catch (error) {
@@ -315,11 +314,10 @@ export const sendOtpRequestwalletaddress = createAsyncThunk(
 
 export const sendWithdrawalOtpRequest = createAsyncThunk(
   "auth/sendWithdrawalOtpRequest",
-  async (data, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await postRequestWithToken(
         API_ENDPOINTS.SENT_WITHDRAWAL_OTP_REQUEST,
-        data
       );
       return response;
     } catch (error) {
@@ -362,13 +360,24 @@ export const getUserDashboardDetails = createAsyncThunk(
     }
   }
 );
-
+export const getProfileDetails = createAsyncThunk(
+  "auth/getProfileDetails",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getRequestWithToken(`${API_ENDPOINTS.GET_PROFILE_DETAILS}`);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch profile data");
+    }
+  }
+);
 export const getUserSummaryDetails = createAsyncThunk(
   "auth/getUserSummaryDetails",
-  async (urid, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getRequestWithToken(
-        `/Authentication/userSummaryDetails?URID=${urid}`
+        `/Authentication/userSummaryDetails`
       );
       return response.data || response;
     } catch (error) {
@@ -436,7 +445,8 @@ const authSlice = createSlice({
     referralDataByLoginIdError: null,
     UserdashboardData: null,
     UserSummaryData: null,
-    updateUserData:null
+    updateUserData:null,
+    profileData: null
   },
 
   reducers: {
@@ -743,6 +753,19 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getProfileDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProfileDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profileData = action.payload;
+        state.error = null;
+      })
+      .addCase(getProfileDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

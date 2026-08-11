@@ -565,7 +565,7 @@ export default function BinaryTree() {
       }
 
       const response = await fetch(
-        `https://app.xoxofx.com/api/Community/getdownLineTreeDetails?URID=${urid}`,
+        `https://app.xoxofx.com/api/Community/getdownLineTreeDetails`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -606,14 +606,14 @@ export default function BinaryTree() {
   };
 
   useEffect(() => {
-    if (!userId || !token) {
+    if (!token) {
       setError("Missing authentication. Please log in.");
       setLoading(false);
       return;
     }
 
-    fetchTreeByURID(userId, false);
-  }, [userId, token]);
+    fetchTreeByURID();
+  }, [token]);
 
   const handleTooltip = useCallback((node, x, y) => setTooltip({ node, x, y }), []);
   const handleHideTooltip = useCallback(() => setTooltip(null), []);

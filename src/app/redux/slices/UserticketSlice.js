@@ -34,10 +34,10 @@ export const getAllTicketBYURID = createAsyncThunk(
 
 export const getAdminReplyCount = createAsyncThunk(
   "userticket/getAdminReplyCount",
-  async ({ urid, ticketId }, { rejectWithValue }) => {
+  async ({  ticketId }, { rejectWithValue }) => {
     try {
       const response = await postRequestWithToken(
-        `${API_ENDPOINTS.ADMIN_REPLY_COUNT}?URID=${urid}&TicketId=${ticketId}`
+        `${API_ENDPOINTS.ADMIN_REPLY_COUNT}?TicketId=${ticketId}`
       );
       return { ticketId, data: response.data };
     } catch (error) {
@@ -51,10 +51,10 @@ export const getAdminReplyCount = createAsyncThunk(
 
 export const updateAdminReplyCount = createAsyncThunk(
   "userticket/updateAdminReplyCount",
-  async ({ urid, ticketId }, { rejectWithValue }) => {
+  async ({ ticketId }, { rejectWithValue }) => {
     try {
       const response = await postRequestWithToken(
-        `${API_ENDPOINTS.UPDATE_ADMIN_REPLY_COUNT}?URID=${urid}&TicketId=${ticketId}`
+        `${API_ENDPOINTS.UPDATE_ADMIN_REPLY_COUNT}?TicketId=${ticketId}`
       );
       return { ticketId, data: response.data };
     } catch (error) {

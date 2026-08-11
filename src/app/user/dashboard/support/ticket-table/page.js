@@ -24,17 +24,9 @@ export default function TicketTable() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [userId, setUserId] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUserId = getEncryptedLocalData("UserId");
-      if (storedUserId) {
-        setUserId(storedUserId);
-      }
-    }
-  }, []);
+ 
   const { getAllTicketDataNew, adminReplyCounts } =
     useSelector((state) => state.userticket) || {};
 
@@ -44,23 +36,23 @@ export default function TicketTable() {
   );
 
   useEffect(() => {
-    if (!isLoaded && userId) {
-      dispatch(getAllTicketBYURID(userId));
+    if (!isLoaded ) {
+      dispatch(getAllTicketBYURID());
       setIsLoaded(true);
     }
-  }, [dispatch, userId, isLoaded]);
+  }, [dispatch, isLoaded]);
 
   useEffect(() => {
-    if (userId && ticketData.length > 0) {
+    if ( ticketData.length > 0) {
       ticketData.forEach((ticket) => {
         if (ticket.StatusType === "Open") {
           dispatch(
-            getAdminReplyCount({ urid: userId, ticketId: ticket.TicketId })
+            getAdminReplyCount({  ticketId: ticket.TicketId })
           );
         }
       });
     }
-  }, [dispatch, userId, ticketData]);
+  }, [dispatch, ticketData]);
 
   useEffect(() => {
     if (adminReplyCounts) {
@@ -105,7 +97,7 @@ export default function TicketTable() {
 
                       await dispatch(
                         updateAdminReplyCount({
-                          urid: row.URID,
+                          // urid: row.URID,
                           ticketId: row.TicketId,
                         })
                       );
@@ -123,7 +115,7 @@ export default function TicketTable() {
                         JSON.stringify(updatedCounts)
                       );
 
-                      dispatch(getAllTicketBYURID(userId));
+                      dispatch(getAllTicketBYURID());
                     }}
                   >
                     Reply
