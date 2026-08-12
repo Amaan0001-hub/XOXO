@@ -31,6 +31,7 @@ const API_ENDPOINTS = {
   GET_ALL_COUNTRY: "/Geography/getAllCountry",
   VALIDATE_OTP: "/Authentication/validateOtp",
   SEND_OTP_REQUEST: "/SMTPServices/sendOtpptwoptrasferEmail",
+  SEND_OTP_REQUEST_INCOME: "/SMTPServices/sendOtpIncomeToDepositWallet",
   SEND_OTP_REQUEST_WITHDRWAL: "/SMTPServices/sendOtpUpdateProfile",
   GET_USER_DASHBOARD_DETAILS: "/Authentication/userDashboardDetails",
   UPDATE_USER_PROFILE: "/Authentication/updateUserProfile",
@@ -294,7 +295,22 @@ export const sendOtpFundRequest = createAsyncThunk(
     }
   }
 );
-
+export const sendOtpFundRequestIncome = createAsyncThunk(
+  "auth/sendOtpFundRequestIncome",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await postRequestWithToken(
+        API_ENDPOINTS.SEND_OTP_REQUEST_INCOME,
+      );
+      return response;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to send OTP"
+      );
+    }
+  }
+);
 export const sendOtpRequestwalletaddress = createAsyncThunk(
   "auth/sendOtpRequestwalletaddress",
   async (_, { rejectWithValue }) => {
@@ -446,7 +462,8 @@ const authSlice = createSlice({
     UserdashboardData: null,
     UserSummaryData: null,
     updateUserData:null,
-    profileData: null
+    profileData: null,
+    sendOtpFundRequestIncomeData: null
   },
 
   reducers: {
@@ -766,6 +783,19 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getProfileDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(sendOtpFundRequestIncome.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendOtpFundRequestIncome.fulfilled, (state, action) => {
+        state.loading = false;
+        state.sendOtpFundRequestIncomeData = action.payload;
+        state.error = null;
+      })
+      .addCase(sendOtpFundRequestIncome.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

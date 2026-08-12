@@ -3,7 +3,9 @@
 import React from "react";
 export default function RankProgress({
   completed = 0,
-  total = 11,
+  NextRank = "",
+  totQualifyRnk = 0,
+  total = 7,
   activeRank = "No Rank",
   nextReward = "$100",
   progressPercent = 0,
@@ -59,7 +61,7 @@ export default function RankProgress({
                   Completed
                 </span>
                 <span className="it-val">
-                  {completed}/{total}
+                  {totQualifyRnk}/{total}
                 </span>
               </div>
               <div className="it bg-g gl gl-g">
@@ -70,9 +72,9 @@ export default function RankProgress({
               </div>
               <div className="it bg-c gl gl-c">
                 <span className="it-lbl" style={{ display: "block" }}>
-                  Next Reward
+                  Next Rank
                 </span>
-                <span className="it-val">{nextReward}</span>
+                <span className="it-val">{NextRank}</span>
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getdirectMember } from "@/app/redux/slices/walletSlice";
+import { GetDirectMemberAdmin } from "@/app/redux/slices/walletSlice";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FaSearch, FaFileExcel, FaSyncAlt, FaUsers, FaUserFriends, FaTrophy, FaDollarSign } from "react-icons/fa";
@@ -10,7 +10,7 @@ import Spinner from "@/app/common/spinner";
 
 export default function Affiliate() {
   const dispatch = useDispatch();
-  const { directMemberData, loading, error } = useSelector(
+  const { GetDirectMemberAdminData, loading, error } = useSelector(
     (state) => state.wallet
   );
 
@@ -31,20 +31,20 @@ export default function Affiliate() {
       setErrors(newErrors);
       return;
     }
-    dispatch(getdirectMember({ loginid: loginId }));
+    dispatch(GetDirectMemberAdmin({ statusId: "", loginid: loginId }));
     setSearched(true);
     setCurrentPage(1); // reset page
   };
 
   // Export Excel
   const handleExport = () => {
-    if (!directMemberData || directMemberData.length === 0) {
+    if (!GetDirectMemberAdminData || GetDirectMemberAdminData.length === 0) {
       alert("No data available to export");
       return;
     }
 
     const worksheet = XLSX.utils.json_to_sheet(
-      directMemberData.map((member, idx) => ({
+      GetDirectMemberAdminData.map((member, idx) => ({
         "Sr.No.": idx + 1,
         Email: member.email,
         Mobile: member.mobile,
@@ -83,14 +83,14 @@ export default function Affiliate() {
   };
 
   // Pagination calculation
-  const totalPages = Math.ceil(directMemberData?.length / rowsPerPage);
+  const totalPages = Math.ceil(GetDirectMemberAdminData?.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const paginatedData = directMemberData?.slice(startIndex, endIndex);
+  const paginatedData = GetDirectMemberAdminData?.slice(startIndex, endIndex);
 
   // Calculate statistics
-  const totalTeamBusiness = directMemberData?.reduce((sum, member) => sum + (parseFloat(member.teamBusiness) || 0), 0) || 0;
-  const totalLeaseAmount = directMemberData?.reduce((sum, member) => sum + (parseFloat(member.leaseAmount) || 0), 0) || 0;
+  const totalTeamBusiness = GetDirectMemberAdminData?.reduce((sum, member) => sum + (parseFloat(member.teamBusiness) || 0), 0) || 0;
+  const totalLeaseAmount = GetDirectMemberAdminData?.reduce((sum, member) => sum + (parseFloat(member.leaseAmount) || 0), 0) || 0;
 
   return (
     <div>
@@ -198,14 +198,14 @@ export default function Affiliate() {
                 </div>
                 <p className="text-red-500 dark:text-red-400 font-medium">{error.message || "Something went wrong"}</p>
               </div>
-            ) : directMemberData && directMemberData.length > 0 ? (
+            ) : GetDirectMemberAdminData && GetDirectMemberAdminData.length > 0 ? (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {/* Results Header */}
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2">
                     <FaUserFriends className="text-emerald-500" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Found <span className="text-emerald-600 font-bold">{directMemberData?.length}</span> affiliates
+                      Found <span className="text-emerald-600 font-bold">{GetDirectMemberAdminData?.length}</span> affiliates
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -307,7 +307,7 @@ export default function Affiliate() {
                 </div>
 
                 {/* Pagination Controls */}
-                {directMemberData?.length > 0 && (
+                {GetDirectMemberAdminData?.length > 0 && (
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-600 dark:text-gray-400">Rows per page:</span>
@@ -327,8 +327,8 @@ export default function Affiliate() {
 
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Showing <span className="font-semibold">{startIndex + 1}</span> to{" "}
-                      <span className="font-semibold">{Math.min(endIndex, directMemberData?.length)}</span> of{" "}
-                      <span className="font-semibold">{directMemberData?.length}</span> entries
+                      <span className="font-semibold">{Math.min(endIndex, GetDirectMemberAdminData?.length)}</span> of{" "}
+                      <span className="font-semibold">{GetDirectMemberAdminData?.length}</span> entries
                     </div>
 
                     <div className="flex items-center gap-2">

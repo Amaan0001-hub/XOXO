@@ -1087,10 +1087,10 @@ const downloadPDFInvoice = async (orderData) => {
       const currentUserURID = getUserId();
 
       const requestBody = {
-        urid: userURID,
+        // urid: userURID,
         productId: investBot.productId,
-        createdBy: currentUserURID,
-        byURID: currentUserURID,
+        // createdBy: currentUserURID,
+        byLoginId: uid,
         rkprice: investmentAmount  // Using custom amount
       };
 
