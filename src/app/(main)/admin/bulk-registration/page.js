@@ -39,7 +39,7 @@ const BulkRegistration = () => {
     const timeoutId = setTimeout(() => {
       if (userId && userId.trim()) {
         dispatch(usernameLoginId(userId)).then((res) => {
-          setIntroURID(res.payload?.urid || "");
+          // setIntroURID(res.payload?.urid || "");
           if (!res.payload) {
             setErrors({ authLogin: "User not found" });
           } else {
@@ -61,7 +61,7 @@ const BulkRegistration = () => {
   const handleBlurOrFetch = () => {
     if (userId && userId.trim()) {
       dispatch(usernameLoginId(userId)).then((res) => {
-        setIntroURID(res.payload?.urid || "");
+        // setIntroURID(res.payload?.urid || "");
       });
       setTouched(true);
     }
@@ -127,7 +127,7 @@ const BulkRegistration = () => {
 
     // Build request body exactly as API expects
     const reqBody = {
-      introURID,
+      introAuthlogin: userId || "",
       introSide: introSideValue,
       fName: form.fName,
       lName: form.lName,
@@ -219,7 +219,7 @@ const BulkRegistration = () => {
             </div>
 
             {/* Main Registration Fields */}
-            {touched && usernameData && introURID && (
+            {touched && usernameData && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">

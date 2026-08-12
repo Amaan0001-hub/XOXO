@@ -4,14 +4,14 @@ import {  postformRequest, postRequestWithToken,getRequestWithToken } from '@/ap
 
 export const API_ENDPOINTS = {
     GET_ALL_TICKETS: "/Ticket/getAllTicketAdmin",
-    TICKET_REPLY: "/Ticket/addTicketReply",
-    GET_TICKET_REPLY_BY_TICKET_ID: "/Ticket/getTicketBYTicketId",
+    TICKET_REPLY: "/Ticket/addTicketReplyAdmin",
+    GET_TICKET_REPLY_BY_TICKET_ID: "/Ticket/getTicketBYTicketIdAdmin",
     DELETE_TICKET: "/Ticket/closeTicket",
     GET_ALL_CLOSED_TICKET:"/Ticket/getAllclosedTicket",
     SEND_NOTIFICATION:"/Ticket/sendNotification",
     SEND_EMAIL:"/Event/sendEmailsAllUser",
     USER_REPLY_COUNT: "/Ticket/userReplyCount",
-    UPDATE_USER_REPLY_COUNT: "/Ticket/updateUserReplyCount",
+    UPDATE_USER_REPLY_COUNT: "/Ticket/updateUserReplyCountAdmin",
     GET_USER_NOTIFICATIONS: "/Ticket/getUserNotificationListbyURID",
    UPDATE_NOTIFICATIONS_COUNT: "/Ticket/updateUserNotification",
    GET_ALL_USER_NOTIFICATIONS: "/Ticket/getAllUserNotificationList"
@@ -124,10 +124,10 @@ export const sendEmail = createAsyncThunk(
 
 export const fetchUserReplyCount = createAsyncThunk(
   'ticket/fetchUserReplyCount',
-  async ({ URID, TicketId }, { rejectWithValue }) => {
+  async ( TicketId, { rejectWithValue }) => {
     try {
      
-      const response = await postRequestWithToken(`${API_ENDPOINTS.USER_REPLY_COUNT}?URID=${URID}&TicketId=${TicketId}`);
+      const response = await postRequestWithToken(`${API_ENDPOINTS.USER_REPLY_COUNT}?TicketId=${TicketId}`);
       
       return response.data;
     } catch (error) {
@@ -139,10 +139,10 @@ export const fetchUserReplyCount = createAsyncThunk(
 
 export const updateUserReplyCount = createAsyncThunk(
   'ticket/updateUserReplyCount',
-  async ({ URID, TicketId }, { rejectWithValue }) => {
+  async ({TicketId}, { rejectWithValue }) => {
     try {
 
-      const response = await postRequestWithToken(`${API_ENDPOINTS.UPDATE_USER_REPLY_COUNT}?URID=${URID}&TicketId=${TicketId}`);
+      const response = await postRequestWithToken(`${API_ENDPOINTS.UPDATE_USER_REPLY_COUNT}?TicketId=${TicketId}`);
     
       return response.data;
     } catch (error) {

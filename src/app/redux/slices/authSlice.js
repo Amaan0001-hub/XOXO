@@ -35,6 +35,7 @@ const API_ENDPOINTS = {
   SEND_OTP_REQUEST_WITHDRWAL: "/SMTPServices/sendOtpUpdateProfile",
   GET_USER_DASHBOARD_DETAILS: "/Authentication/userDashboardDetails",
   UPDATE_USER_PROFILE: "/Authentication/updateUserProfile",
+  UPDATE_USER_PROFILE_ADMIN: "/Authentication/updateUserProfileAdmin",
   UPDATE_PASSWORD:"/Authentication/changePassword",
   GET_PROFILE_DETAILS: '/WalletReport/getProfileDetails'
 };
@@ -418,7 +419,19 @@ export const updateUser = createAsyncThunk(
     }
   }
 );
-
+export const updateUserAdmin = createAsyncThunk(
+  "auth/updateUserAdmin",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await postRequestWithToken(API_ENDPOINTS.UPDATE_USER_PROFILE_ADMIN, formData);
+      return response;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || "Something went wrong";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 export const updatePassword = createAsyncThunk(
   "auth/updatePassword",
   async (data, { rejectWithValue }) => {
@@ -463,7 +476,8 @@ const authSlice = createSlice({
     UserSummaryData: null,
     updateUserData:null,
     profileData: null,
-    sendOtpFundRequestIncomeData: null
+    sendOtpFundRequestIncomeData: null,
+    updateUserAdminData: null
   },
 
   reducers: {
@@ -796,6 +810,19 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(sendOtpFundRequestIncome.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateUserAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.updateUserAdminData = action.payload;
+        state.error = null;
+      })
+      .addCase(updateUserAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

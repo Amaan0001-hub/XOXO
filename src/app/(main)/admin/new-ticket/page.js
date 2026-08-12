@@ -104,7 +104,7 @@ const NewTicket = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation() 
-                  dispatch(updateUserReplyCount({ URID: row.URID, TicketId: row.TicketId }))
+                  dispatch(updateUserReplyCount({ TicketId: row.TicketId }))
                   dispatch(getAllTicketByTicketId(row.TicketId))
                   setShowPopup(true)
                 }}
@@ -299,7 +299,7 @@ const NewTicket = () => {
                 <FaUser className="text-emerald-500"/>
                 User ID
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {ticket.UserID || "-"}
               </p>
             </div>
@@ -309,7 +309,7 @@ const NewTicket = () => {
                 <FaCalendarAlt className="text-emerald-500"/>
                 Date
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {formatDate(ticket.CreatedDate)}
               </p>
             </div>
@@ -318,7 +318,7 @@ const NewTicket = () => {
               <p className="text-xs text-gray-500">
                 Name
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {ticket.UserName || "-"}
               </p>
             </div>
@@ -327,7 +327,7 @@ const NewTicket = () => {
               <p className="text-xs text-gray-500">
                 Type
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {ticket.TicketType || "-"}
               </p>
             </div>
@@ -336,7 +336,7 @@ const NewTicket = () => {
               <p className="text-xs text-gray-500">
                 Subject
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {ticket.Subject || "-"}
               </p>
             </div>
@@ -345,7 +345,7 @@ const NewTicket = () => {
               <p className="text-xs text-gray-500">
                 Status
               </p>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-sm font-semibold mt-0.5 text-gray-400">
                 {ticket.StatusType || "-"}
               </p>
             </div>
@@ -382,7 +382,7 @@ const NewTicket = () => {
 
         {/* Conversation - Maximum Height */}
         <div className="flex flex-col flex-1 min-h-[300px] px-5 pb-2 overflow-hidden">
-          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2 flex-shrink-0">
+          <h3 className="text-sm font-semibold mb-2 flex items-center text-gray-700 gap-2 flex-shrink-0">
             <RiMessageLine className="text-emerald-500"/>
             Conversation
           </h3>
@@ -454,7 +454,7 @@ const NewTicket = () => {
                         />
                       )}
 
-                      <span className="text-xs opacity-70 block mt-2">
+                      <span className="text-xs  opacity-70 block mt-2">
                         {message.timestamp || ""}
                       </span>
                     </div>

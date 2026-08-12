@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPersonalTeamList } from "@/app/redux/slices/walletSlice";
+import { getPersonalTeamListAdmin } from "@/app/redux/slices/walletSlice";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FaSearch, FaFileExcel, FaSyncAlt } from "react-icons/fa";
@@ -12,7 +12,7 @@ const DownlineAffiliates = () => {
   const [authLogin, setAuthLogin] = useState("");
   const [searched, setSearched] = useState(false);
   const [lastSearched, setLastSearched] = useState("");
-  const { personalTeamList, loading, error } = useSelector(
+  const { getPersonalTeamListAdminData, loading, error } = useSelector(
     (state) => state.wallet
   );
   const [errors, setErrors] = useState({});
@@ -31,7 +31,12 @@ const DownlineAffiliates = () => {
       return;
     }
     setErrors({});
-    dispatch(getPersonalTeamList({ authLogin }));
+    const payload = {
+      authLogin: authLogin,
+      lvl: "",
+      statusId: ""
+    }
+    dispatch(getPersonalTeamListAdmin(payload));
     setSearched(true);
     setLastSearched(authLogin);
     setCurrentPage(1); 
@@ -39,9 +44,9 @@ const DownlineAffiliates = () => {
 
   // 📊 Export Excel
   const handleExport = () => {
-    const data = Array.isArray(personalTeamList)
-      ? personalTeamList
-      : personalTeamList?.data || [];
+    const data = Array.isArray(getPersonalTeamListAdminData)
+      ? getPersonalTeamListAdminData
+      : getPersonalTeamListAdminData?.data || [];
 
     if (!data || data.length === 0) {
       alert("No data available to export");
@@ -85,9 +90,9 @@ const DownlineAffiliates = () => {
     }, 1000); // Simulate loading time
   };
 
-  const data = Array.isArray(personalTeamList)
-    ? personalTeamList
-    : personalTeamList?.data || [];
+  const data = Array.isArray(getPersonalTeamListAdminData)
+    ? getPersonalTeamListAdminData
+    : getPersonalTeamListAdminData?.data || [];
 
   // Pagination calculation
   const totalPages = Math.ceil(data.length / rowsPerPage);

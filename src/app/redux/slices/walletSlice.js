@@ -10,9 +10,11 @@ const API_ENDPOINTS = {
   GET_TRANSACTION_HISTORY: "/WalletReport/getTransactionHistory",
   GET_REFERALINK: "/WalletReport/getReferalink",
   GET_NETWORK_TREE: "/WalletReport/getNetworkTree",
+  GET_NETWORK_TREE_ADMIN: '/Community/getNetworkTreeAdmin',
   GET_DIRECT_MEMBER: "/Community/getdirectMember",
   GET_DIRECT_MEMBER_ADMIN: "/Community/getdirectMemberAdmin",
   GET_PERSONAL_TEAM_LIST: "/Community/getPersonalTeam",
+  GET_PERSONAL_TEAM_LIST_ADMIN: '/Community/getPersonalTeamAdmin',
   GET_REWARDS: "/WalletReport/getPerformanceRewardListByURID",
   GET_RANK_ACHIEVEMENT: "/WalletReport/getRankAchievementbyURID"
 };
@@ -203,7 +205,19 @@ export const getNetworkTree = createAsyncThunk(
     }
   }
 );
-
+export const getNetworkTreeAdmin = createAsyncThunk(
+  "wallet/getNetworkTreeAdmin",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await postRequestWithToken(`${API_ENDPOINTS.GET_NETWORK_TREE_ADMIN}?authlogin=${data}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch community data");
+    }
+  }
+);
 export const getdirectMember = createAsyncThunk(
   "wallet/getdirectMember",
   async (data, { rejectWithValue }) => {
@@ -250,7 +264,21 @@ export const getPersonalTeamList = createAsyncThunk(
     }
   }
 );
-
+export const getPersonalTeamListAdmin = createAsyncThunk(
+  "wallet/getPersonalTeamListAdmin",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await postRequestWithToken(
+        API_ENDPOINTS.GET_PERSONAL_TEAM_LIST_ADMIN,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch community data");
+    }
+  }
+);
 export const getPerformanceRewardListByURID = createAsyncThunk(
   "wallet/getPerformanceRewardListByURID",
   async (urid, { rejectWithValue }) => {
@@ -316,7 +344,9 @@ const walletSlice = createSlice({
     personalTeamList: null,
     PerformanceRewardListData: null,
     AchivementListData: null,
-    GetDirectMemberAdminData: null
+    GetDirectMemberAdminData: null,
+    getPersonalTeamListAdminData: null,
+    getNetworkTreeAdminData: null
   },
   reducers: {
     resetSearchBindBuyPackage: (state) => {
@@ -495,6 +525,30 @@ const walletSlice = createSlice({
         state.GetDirectMemberAdminData = action.payload;
       })
       .addCase(GetDirectMemberAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getPersonalTeamListAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPersonalTeamListAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.getPersonalTeamListAdminData = action.payload;
+      })
+      .addCase(getPersonalTeamListAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getNetworkTreeAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getNetworkTreeAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.getNetworkTreeAdminData = action.payload;
+      })
+      .addCase(getNetworkTreeAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

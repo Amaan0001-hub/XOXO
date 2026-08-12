@@ -7,7 +7,7 @@ import Tree from "react-d3-tree";
 import { FaRegFile, FaSearch, FaNetworkWired, FaExpandAlt, FaCompressAlt, FaSitemap, FaUsers } from "react-icons/fa";
 import { RiUserSearchLine, RiTreeLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import { getNetworkTree } from "@/app/redux/slices/walletSlice";
+import { getNetworkTreeAdmin } from "@/app/redux/slices/walletSlice";
 import toast from "react-hot-toast";
 import Loading from "@/app/common/loading";
 
@@ -300,7 +300,7 @@ const CustomNode = ({ nodeDatum, toggleNode }) => {
 
 export default function IntelligentTreeView() {
   const dispatch = useDispatch();
-  const { getNetworkTreeData, loading } = useSelector((state) => state.wallet);
+  const { getNetworkTreeAdminData, loading } = useSelector((state) => state.wallet);
 
   const containerRef = useRef(null);
   const [translate, setTranslate] = useState({ x: 400, y: 100 });
@@ -312,13 +312,13 @@ export default function IntelligentTreeView() {
   const treeData = useMemo(
     () =>
       buildTreeData(
-        Array.isArray(getNetworkTreeData)
-          ? getNetworkTreeData
-          : getNetworkTreeData || [],
+        Array.isArray(getNetworkTreeAdminData)
+          ? getNetworkTreeAdminData
+          : getNetworkTreeAdminData || [],
         collapsedNodes,
         userId // Pass the search userId to buildTreeData
       ),
-    [getNetworkTreeData, collapsedNodes, userId]
+    [getNetworkTreeAdminData, collapsedNodes, userId]
   );
 
   const handleSearch = () => {
@@ -329,7 +329,7 @@ export default function IntelligentTreeView() {
       return;
     }
     setErrors({});
-    dispatch(getNetworkTree(userId));
+    dispatch(getNetworkTreeAdmin(userId));
     setSearched(true);
   };
 
