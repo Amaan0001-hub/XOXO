@@ -5,7 +5,7 @@ import {
   usernameLoginId,
   clearUsernameData,
 } from '@/app/redux/slices/adminMasterSlice'
-import { updateUser, getAllCountry } from '@/app/redux/slices/authSlice'
+import { updateUser, getAllCountry, updateUserAdmin } from '@/app/redux/slices/authSlice'
 import { toast } from 'react-toastify'
 import Select from 'react-select'
 import Spinner from '@/app/common/spinner'
@@ -73,6 +73,7 @@ const CountrySingleValue = ({ data }) => (
 const EditUser = () => {
   const dispatch = useDispatch()
   const [userIdError, setUserIdError] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const { usernameData, error: usernameError } = useSelector(
     (state) => state.adminMaster,
   )
@@ -98,36 +99,9 @@ const EditUser = () => {
   useEffect(() => {
     dispatch(getAllCountry())
   }, [dispatch])
-
   useEffect(() => {
-    const timeoutId = setTimeout(async () => {
-      if (authLogin && authLogin.trim()) {
-        const result = await dispatch(usernameLoginId(authLogin))
-
-        if (result.payload === null) {
-          setUserIdError("User ID doesn't exist")
-          setFields({
-            loginID: '',
-            name: '',
-            fName: '',
-            lName: '',
-            email: '',
-            address: '',
-            mobile: '',
-            countryid: 0,
-            walletBep20: '',
-            authPass: '',
-          })
-          setSelectedCountry(null)
-          setCountryCode('')
-        } else {
-          setUserIdError('')
-        }
-      }
-    }, 300)
-    return () => clearTimeout(timeoutId)
-  }, [authLogin, dispatch])
-
+    resetForm()
+  }, [])
   useEffect(() => {
     if (usernameError) {
       toast.error(usernameError.message || 'Invalid User ID')
@@ -145,6 +119,7 @@ const EditUser = () => {
       })
       setSelectedCountry(null)
       setCountryCode('')
+      setIsSearching(false)
     }
   }, [usernameError])
 
@@ -186,33 +161,36 @@ const EditUser = () => {
         setSelectedCountry(countryOption)
         setCountryCode(usernameData.phonecode)
       }
+      setIsSearching(false)
     }
   }, [usernameData, getAllCountryData])
 
-  useEffect(() => {
-    if (updateUserData && updateUserData.statusCode === 200) {
-      toast.success(updateUserData.message || 'User updated successfully!')
-      setFields({
-        loginID: '',
-        name: '',
-        fName: '',
-        lName: '',
-        email: '',
-        address: '',
-        mobile: '',
-        countryid: 0,
-        walletBep20: '',
-        authPass: '',
-      })
-      setAuthLogin('')
-      setSelectedCountry(null)
-      setCountryCode('')
-      dispatch(clearUsernameData())
-    }
-  }, [updateUserData, dispatch])
+  const resetForm = () => {
+    setFields({
+      loginID: '',
+      name: '',
+      fName: '',
+      lName: '',
+      email: '',
+      address: '',
+      mobile: '',
+      countryid: 0,
+      walletBep20: '',
+      authPass: '',
+    })
 
+    setAuthLogin('')
+    setSelectedCountry(null)
+    setCountryCode('')
+    setUserIdError('')
+    setIsSearching(false)
+
+    dispatch(clearUsernameData())
+  }
   const handleUserIdChange = (e) => {
     setAuthLogin(e.target.value)
+    setUserIdError('')
+    // Clear previous user data when typing new ID
     setFields({
       name: '',
       fName: '',
@@ -226,6 +204,45 @@ const EditUser = () => {
     })
     setSelectedCountry(null)
     setCountryCode('')
+  }
+
+  const handleSearchUser = async () => {
+    if (!authLogin || !authLogin.trim()) {
+      toast.error('Please enter a User ID')
+      return
+    }
+
+    setIsSearching(true)
+    setUserIdError('')
+
+    try {
+      const result = await dispatch(usernameLoginId(authLogin))
+
+      if (result.payload === null) {
+        setUserIdError("User ID doesn't exist")
+        setFields({
+          loginID: '',
+          name: '',
+          fName: '',
+          lName: '',
+          email: '',
+          address: '',
+          mobile: '',
+          countryid: 0,
+          walletBep20: '',
+          authPass: '',
+        })
+        setSelectedCountry(null)
+        setCountryCode('')
+        setIsSearching(false)
+      } else {
+        setUserIdError('')
+        // Data will be populated by the useEffect
+      }
+    } catch (error) {
+      setUserIdError("User ID doesn't exist")
+      setIsSearching(false)
+    }
   }
 
   const handleFieldChange = (e) => {
@@ -244,11 +261,11 @@ const EditUser = () => {
   }
 
   const insecureNumbers = ["123456", "123456789", "123123", "password", "qwerty"]
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!usernameData) {
-      toast.error('Please enter a valid User ID first')
+      toast.error('Please search and select a valid User ID first')
       return
     }
 
@@ -297,7 +314,11 @@ const EditUser = () => {
       authPass: fields.authPass,
     }
 
-    dispatch(updateUser(payload))
+    const result = await dispatch(updateUserAdmin(payload)).unwrap()
+    if (result.statusCode === 200) {
+      toast.success(result?.message || "Success");
+      resetForm();
+    }
   }
 
   const countryOptions =
@@ -377,8 +398,8 @@ const EditUser = () => {
   }
 
   return (
-    <div style={{ 
-      maxWidth: "900px", 
+    <div style={{
+      maxWidth: "900px",
       margin: "0 auto",
       padding: "20px 0"
     }}>
@@ -420,7 +441,6 @@ const EditUser = () => {
                 Update user information and manage account details
               </p>
             </div>
-          
           </div>
         </div>
 
@@ -436,7 +456,7 @@ const EditUser = () => {
           }}>
             <div style={{
               display: "grid",
-              gridTemplateColumns: usernameData ? "1fr 1fr" : "1fr",
+              gridTemplateColumns: usernameData ? "1fr auto 1fr" : "1fr auto",
               gap: "16px",
               alignItems: "end"
             }}>
@@ -450,17 +470,41 @@ const EditUser = () => {
                 }}>
                   User ID *
                 </label>
-                <input
-                  type="text"
-                  style={{
-                    ...inputStyle,
-                    borderColor: userIdError ? "#fc8181" : "#e2e8f0",
-                    background: "#fff"
-                  }}
-                  value={authLogin}
-                  onChange={handleUserIdChange}
-                  placeholder="Enter User ID to search"
-                />
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <input
+                    type="text"
+                    style={{
+                      ...inputStyle,
+                      borderColor: userIdError ? "#fc8181" : "#e2e8f0",
+                      background: "#fff",
+                      flex: 1
+                    }}
+                    value={authLogin}
+                    onChange={handleUserIdChange}
+                    placeholder="Enter User ID to search"
+                    disabled={isSearching}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearchUser}
+                    disabled={isSearching || !authLogin.trim()}
+                    style={{
+                      padding: "12px 24px",
+                      background: isSearching || !authLogin.trim() ? "#cbd5e0" : "#1C988E",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "10px",
+                      cursor: isSearching || !authLogin.trim() ? "not-allowed" : "pointer",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      transition: "all 0.3s ease",
+                      fontFamily: "'Inter', sans-serif"
+                    }}
+                  >
+                    {isSearching ? "Searching..." : "Search User"}
+                  </button>
+                </div>
                 {userIdError && (
                   <div style={{ marginTop: "6px", fontSize: "12px", color: "#fc8181" }}>
                     ⚠️ {userIdError}
@@ -499,8 +543,6 @@ const EditUser = () => {
           {/* Registration Details Section */}
           {usernameData && (
             <>
-              
-
               <form onSubmit={handleSubmit}>
                 {/* Referral User Information - Matching second image */}
                 <div style={{
@@ -510,8 +552,6 @@ const EditUser = () => {
                   marginBottom: "24px",
                   border: "1px solid #eef2f7"
                 }}>
-                  
-
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                     <div>
                       <label style={{

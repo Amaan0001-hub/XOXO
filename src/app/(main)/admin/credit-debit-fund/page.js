@@ -18,31 +18,28 @@ const CreditDebitFund = () => {
   const [filteredTypes, setFilteredTypes] = useState([]);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [userNotFound, setUserNotFound] = useState(false);
   const dispatch = useDispatch();
-  const { data: walletData, loading, error} = useSelector((state) => state.adminMaster);
+  const { data: walletData, loading, error } = useSelector((state) => state.adminMaster);
 
   useEffect(() => {
-    if (!form.loginId) return;
-    const handler = setTimeout(async() => {
-      const result = await dispatch(getUserWalletDetails(form.loginId));
-      if (!result.payload) {
-        setErrors({ authLogin: "User not found" });
-      } else {
-        setErrors({});
-      }
-    }, 100); 
-    return () => clearTimeout(handler);
-  }, [form.loginId, dispatch]);
-
+    resetFormAndStates();
+    resetFormFields();
+  }, [])
+  // Effect to populate user name when wallet data is fetched
   useEffect(() => {
     if (walletData?.walletDetails) {
       setForm((prev) => ({
         ...prev,
         name: walletData.walletDetails.fullName || walletData.walletDetails.name || '',
       }));
+      setUserNotFound(false);
+      setIsSearching(false);
     }
   }, [walletData]);
 
+  // Effect to filter types based on selected wallet
   useEffect(() => {
     if (walletData?.fundTypeWiseCrDrList && form.wallet) {
       setFilteredTypes(walletData.fundTypeWiseCrDrList);
@@ -51,14 +48,37 @@ const CreditDebitFund = () => {
     }
   }, [form.wallet, walletData]);
 
-  useEffect(() => {
-    if (!form.loginId) {
-      setForm((prev) => ({
-        ...prev,
-        name: '',
-      }));
-    }
-  }, [form.loginId]);
+  // Reset all form fields and states
+  const resetFormAndStates = () => {
+    setForm({
+      loginId: '',
+      name: '',
+      wallet: '',
+      type: '',
+      amount: '',
+      remark: '',
+    });
+    setFilteredTypes([]);
+    setErrors({});
+    setUserNotFound(false);
+    setIsSearching(false);
+    setSubmitting(false);
+  };
+
+  // Reset form fields except loginId (useful for search)
+  const resetFormFields = () => {
+    setForm((prev) => ({
+      ...prev,
+      name: '',
+      wallet: '',
+      type: '',
+      amount: '',
+      remark: '',
+    }));
+    setFilteredTypes([]);
+    setErrors({});
+    setUserNotFound(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,20 +88,72 @@ const CreditDebitFund = () => {
     }
   };
 
+  const handleSearchUser = async () => {
+    if (!form.loginId || !form.loginId.trim()) {
+      toast.error('Please enter a User ID');
+      return;
+    }
+
+    setIsSearching(true);
+    setUserNotFound(false);
+    setErrors({});
+
+    try {
+      const result = await dispatch(getUserWalletDetails(form.loginId));
+
+      if (!result.payload || result.payload === null) {
+        setUserNotFound(true);
+        setErrors({ authLogin: "User not found" });
+        resetFormFields(); // Reset fields except loginId
+        setIsSearching(false);
+      } else {
+        setUserNotFound(false);
+        setErrors({});
+        // Data will be populated by the useEffect
+        toast.success('User found successfully!');
+      }
+    } catch (error) {
+      setUserNotFound(true);
+      setErrors({ authLogin: "User not found" });
+      resetFormFields();
+      setIsSearching(false);
+    }
+  };
+
+  const handleLoginIdChange = (e) => {
+    const { value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      loginId: value,
+      name: '',
+      wallet: '',
+      type: '',
+      amount: '',
+      remark: '',
+    }));
+    setUserNotFound(false);
+    setErrors({});
+    // Clear wallet data when typing new ID
+    // The existing wallet data will be cleared from Redux state if needed
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     let newErrors = {};
+
     if (!form.loginId.trim()) newErrors.loginId = 'UserId is required';
     if (!form.wallet) newErrors.wallet = 'Select Wallet is required';
     if (!form.type) newErrors.type = 'Select Type is required';
     if (!form.amount) newErrors.amount = 'Enter Amount is required';
     if (!form.remark) newErrors.remark = 'Description is required';
+
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       setSubmitting(false);
       return;
     }
+
     if (!form.wallet || !form.type || !form.amount || !form.remark) {
       setSubmitting(false);
       return;
@@ -117,7 +189,7 @@ const CreditDebitFund = () => {
     const payload = {
       wallettype: form.wallet,
       crDr: crDr,
-      urid: walletData?.walletDetails?.urid,
+      authlogin: form.loginId,
       amt: form.amount,
       remark: form.remark,
     };
@@ -126,22 +198,20 @@ const CreditDebitFund = () => {
       const response = await dispatch(addFund(payload)).unwrap();
       if (response.statusCode === 200) {
         toast.success(response.message || 'Fund added successfully!');
+
+        // Reset all form fields and states after successful submission
+        resetFormAndStates();
       }
-      setForm({
-        loginId: '',
-        name: '',
-        wallet: '',
-        type: '',
-        amount: '',
-        remark: '',
-      });
-      setErrors({});
     } catch (err) {
       toast.error(err?.message || 'Failed to add fund.');
+      setSubmitting(false);
     } finally {
       setSubmitting(false);
     }
   };
+
+  // Determine if form should be disabled
+  const isFormDisabled = !form.name || userNotFound
 
   return (
     <div>
@@ -171,22 +241,46 @@ const CreditDebitFund = () => {
 
           <form className="p-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* User ID */}
+              {/* User ID with Search Button */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   <FaUser className="inline mr-2 text-emerald-500" />
                   User ID <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  id="loginId"
-                  name="loginId"
-                  value={form.loginId}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
-                  placeholder="Enter user ID"
-                  autoComplete="off"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="loginId"
+                    name="loginId"
+                    value={form.loginId}
+                    onChange={handleLoginIdChange}
+                    className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                    placeholder="Enter user ID"
+                    autoComplete="off"
+                    disabled={isSearching}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearchUser}
+                    disabled={isSearching || !form.loginId.trim()}
+                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
+                  >
+                    {isSearching ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <RiUserSearchLine className="inline mr-2" />
+                        Search
+                      </>
+                    )}
+                  </button>
+                </div>
                 {errors.authLogin && (
                   <div className="mt-2 text-sm text-red-500 flex items-center gap-1">
                     <FaCheckCircle className="text-xs" />
@@ -209,16 +303,15 @@ const CreditDebitFund = () => {
                   id="user"
                   name="name"
                   value={form.name}
-                  onChange={handleChange}
                   readOnly
                   className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                  placeholder="User name will appear here"
+                  placeholder={isSearching ? "Searching..." : "User name will appear here"}
                 />
               </div>
             </div>
 
             {/* Wallet Details Section - Only show when user exists */}
-            {form.name && (
+            {!isFormDisabled && (
               <>
                 {/* Wallet Balances */}
                 <div className="mt-5">
@@ -278,7 +371,7 @@ const CreditDebitFund = () => {
                       value={form.wallet}
                       onChange={handleChange}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 cursor-pointer"
-                      disabled={!walletData?.walletDetails?.urid}
+                      disabled={isFormDisabled}
                     >
                       <option value="">- Select Wallet -</option>
                       {walletData?.fundTypes?.map((w) => (
@@ -304,7 +397,7 @@ const CreditDebitFund = () => {
                       value={form.type}
                       onChange={handleChange}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 cursor-pointer"
-                      disabled={!form.wallet}
+                      disabled={!form.wallet || isFormDisabled}
                     >
                       <option value="">- Select Type -</option>
                       {filteredTypes.map((t) => (
@@ -336,6 +429,7 @@ const CreditDebitFund = () => {
                       step="0.01"
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                       placeholder="Enter amount"
+                      disabled={isFormDisabled}
                     />
                     {errors.amount && (
                       <div className="mt-2 text-sm text-red-500">{errors.amount}</div>
@@ -356,6 +450,7 @@ const CreditDebitFund = () => {
                       rows={3}
                       className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                       placeholder="Enter transaction description"
+                      disabled={isFormDisabled}
                     />
                     {errors.remark && (
                       <div className="mt-2 text-sm text-red-500">{errors.remark}</div>
@@ -377,7 +472,7 @@ const CreditDebitFund = () => {
                 </div>
               </div>
             )}
-            {error && (
+            {error && !userNotFound && (
               <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-center">
                 <p className="text-sm text-red-600 dark:text-red-400">{typeof error === 'string' ? error : 'Failed to fetch wallet details.'}</p>
               </div>
@@ -386,7 +481,7 @@ const CreditDebitFund = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!!errors.authLogin || submitting}
+              disabled={!form.name || userNotFound || submitting || !walletData?.walletDetails?.urid}
               className="group relative w-full mt-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden shadow-md"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">

@@ -11,6 +11,7 @@ import Loader from '../../components/Loader';
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { FiUser, FiLock } from "react-icons/fi";
+import { BASE_URL } from '@/app/constants/constant';
 
 const isValidBep20Length = (value) => {
   if (!value) return true;
@@ -307,7 +308,7 @@ export default function Profile() {
 
       // Call update profile API
       const response = await fetch(
-        'https://smtpmails.online/api/Authentication/updateUserProfile',
+        `${BASE_URL}/Authentication/updateUserProfile`,
         {
           method: 'POST',
           headers: {
