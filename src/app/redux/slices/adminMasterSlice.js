@@ -12,7 +12,7 @@ import {
 
 const API_ENDPOINTS = {
   CHANGE_ADMIN_PASSWORD: "/AdminMaster/chanegAdminPassword",
-  USERNAME_BY_LOGINID: "/AdminMaster/userNameByLoginId",
+  USERNAME_BY_LOGINID: "/AdminMaster/userNameByLoginIdAdmin",
   BLOCK_USER_BY_ADMIN: "/AdminMaster/blockUserByAdmin",
   CHANGE_ADMIN_SPONSOR_ID: "/AdminMaster/chanegAdminSponsorID",
   DOWNLOAD_EXCEL: "/AdminMaster/downloadExcel",

@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table";
 import { getFundRequestReport } from "@/app/redux/slices/fundManagerSlice";
 import { useDispatch } from "react-redux";
-import { sendOtpFundRequest, validateOtp } from "@/app/redux/slices/authSlice";
+import { sendOtpFundRequest, sendOtpFundRequestIncome, validateOtp } from "@/app/redux/slices/authSlice";
 import {
   addTransferIncomeToDepositWallet,
   getTransferIncomeToDepositWalletReport,
@@ -85,19 +85,19 @@ export default function InstantTransfer() {
     }
     if (isOtpSent) return;
 
-    const emailId = getEmailId();
-    if (!emailId) {
-      setOtpError("Email not found. Please try again.");
-      setIsOtpSent(false);
-      return;
-    }
+    // const emailId = getEmailId();
+    // if (!emailId) {
+    //   setOtpError("Email not found. Please try again.");
+    //   setIsOtpSent(false);
+    //   return;
+    // }
 
-    const data = { emailId };
+    // const data = { emailId };
     try {
-      const result = await dispatch(sendOtpFundRequest(data)).unwrap();
+      const result = await dispatch(sendOtpFundRequestIncome()).unwrap();
       if (result.statusCode === 200) {
         setIsOtpSent(true);
-        toast.success(result.message);
+        toast.success(result.data.message || "success!");
       }
     } catch (e) {
       setOtpError("Failed to send OTP. Please try again.");
@@ -105,32 +105,32 @@ export default function InstantTransfer() {
     }
   };
 
-  const fnValidateOtp = async (otp) => {
-    const data = {
-      urid: getUserId(),
-      otp: String(otp)
-    };
-    try {
-      const result = await dispatch(validateOtp(data)).unwrap();
-      if (result.statusCode === 200) {
-        return true;
-      } else {
-        toast.error(result.message || "Invalid OTP");
-        return false;
-      }
-    } catch (e) {
-      toast.error(e?.message || "OTP validation failed");
-      return false;
-    }
-  };
+  // const fnValidateOtp = async (otp) => {
+  //   const data = {
+  //     urid: getUserId(),
+  //     otp: String(otp)
+  //   };
+  //   try {
+  //     const result = await dispatch(validateOtp(data)).unwrap();
+  //     if (result.statusCode === 200) {
+  //       return true;
+  //     } else {
+  //       toast.error(result.message || "Invalid OTP");
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     toast.error(e?.message || "OTP validation failed");
+  //     return false;
+  //   }
+  // };
 
   const handleTransfer = async (values, { setStatus, resetForm, setSubmitting }) => {
     setOtpError("");
-    const isOtpValid = await fnValidateOtp(values.otp);
-    if (!isOtpValid) {
-      setSubmitting(false);
-      return;
-    }
+    // const isOtpValid = await fnValidateOtp(values.otp);
+    // if (!isOtpValid) {
+    //   setSubmitting(false);
+    //   return;
+    // }
     const walletTypeValue = walletType === "income" ? 1 : walletType === "trade" ? 2 : null;
     if (walletTypeValue === null) {
       setStatus({ transferSuccess: false, error: "Please select a wallet first" });
@@ -139,7 +139,7 @@ export default function InstantTransfer() {
     }
 
     const data = {
-      urid: getUserId(),
+      otp: values.otp,
       trnsamount: values.amount,
       walletType: walletTypeValue,
     };
@@ -152,6 +152,8 @@ export default function InstantTransfer() {
         resetForm();
         setStatus({ transferSuccess: true, error: null });
         setIsOtpSent(false);
+      } else{
+        toast.error(result.message);
       }
     } catch (error) {
       setStatus({ transferSuccess: false, error: "Transfer failed" });

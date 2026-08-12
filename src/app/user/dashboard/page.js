@@ -1049,7 +1049,7 @@ export default function DashboardPage() {
         </div>
 
         
-  <RankProgress activeRank = {dashboardData?.[0]?.UserRank}/>
+  <RankProgress activeRank = {dashboardData?.[0]?.UserRank} NextRank = {dashboardData?.[0]?.NextRank} totQualifyRnk= {dashboardData?.[0]?.totQualifyRnk}/>
   
 
         {/* INCOME GRID */}
