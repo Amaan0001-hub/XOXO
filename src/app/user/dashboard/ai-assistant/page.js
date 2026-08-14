@@ -934,7 +934,7 @@ function AIAssistant() {
                         }}
                       >
                         Generated <span id="rpt-time">just now</span> &nbsp;·&nbsp;{" "}
-                        via VELVORA AI Engine
+                        via XOXO FX AI Engine
                       </div>
                     </div>
                     <div
@@ -1341,7 +1341,7 @@ function AIAssistant() {
                         <div className="ata-reasoning-avatar">AI</div>
                         <div>
                           <div style={{ fontSize: "13px", fontWeight: "600" }}>
-                            VELVORA AI Reasoning
+                            XOXO FX AI Reasoning
                           </div>
                           <div
                             style={{ fontSize: "11px", color: "var(--text-secondary)" }}
