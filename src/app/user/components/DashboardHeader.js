@@ -171,6 +171,12 @@ export default function DashboardHeader({
           </span>
           <span>Rank Progress</span>
         </Link>
+         <Link href="/user/dashboard/ai-assistant" className={"ni " + (pathname === '/user/dashboard/ai-assistant' ? 'on' : '')}>
+          <span className="ic">
+            <FiCpu />
+          </span>
+          <span>AI Assistant Demo</span>
+        </Link>
       </div>
 
       <div className="nb">
