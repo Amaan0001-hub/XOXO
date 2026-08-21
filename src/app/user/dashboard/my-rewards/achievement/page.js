@@ -157,7 +157,14 @@ const Achievement = () => {
                   <td className="td-cell">{index + 1}</td>
                   <td className="td-cell rank-name">
                     <div className="rank-title-container">
-                      {getRankIcon(rank.LRank, rank.Statusx)}
+                      {rank.RankIcon && (
+                        <img 
+                          src={rank.RankIcon} 
+                          alt={rank.LRank} 
+                          className="rank-icon-img"
+                          style={{ width: '30px', height: '30px' }}
+                        />
+                      )}
                       <span>{rank.LRank}</span>
                     </div>
                   </td>

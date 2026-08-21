@@ -124,7 +124,7 @@ import {
   RiMenu4Line,
 } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
-import { doLogout, getAdminUserId } from '@/app/api/auth';
+import { doAdminLogout, getAdminUserId } from '@/app/api/auth';
 import { getAllMenuDetails } from '@/app/redux/slices/authSlice';
 import { adminuserLogin } from '@/app/redux/slices/adminMasterSlice';
 
@@ -307,7 +307,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   };
 
   const handleLogout = () => {
-    dispatch(doLogout());
+    doAdminLogout();
     window.location.href = '/admin';
   };
 
@@ -457,30 +457,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         )}
       </div>
 
-      {(!isCollapsed || isMobile) && (
-        <div className="px-4 pt-4 pb-2 border-b border-white/10">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Enter username to login as user"
-              value={username || ''}
-              onChange={handleUsernameChange}
-              className="w-full px-3 py-2.5 rounded-lg bg-transparent border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors duration-200"
-              autoComplete="off"
-            />
-            {errors.username && (
-              <p className="text-red-300 text-xs mt-1">{errors.username}</p>
-            )}
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-all duration-200 text-sm border border-white/10"
-            >
-              Login as User
-            </button>
-          </form>
-        </div>
-      )}
+    
 
       {(!isCollapsed || isMobile)
         ? <p className="px-5 pt-5 pb-2 text-[10px] font-black tracking-[0.18em] uppercase text-teal-200/50">Navigation</p>

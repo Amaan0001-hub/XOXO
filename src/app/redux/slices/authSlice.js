@@ -12,8 +12,10 @@ import {
   getAdminDashboard,
   getSearchAllUsers,
   getAllMenu,
-  getToken, getRequest, getRequestWithToken
+  getToken, getRequest, getRequestWithToken,
+  setAdminToken,
 } from "../../api/auth";
+import cookies from "js-cookie";
 import { act } from "react";
 
 const API_ENDPOINTS = {
@@ -77,18 +79,26 @@ export const adminLogin = createAsyncThunk(
         password: data.password
       };
       const response = await postRequestWithToken(
+        
         API_ENDPOINTS.ADMIN_LOGIN,
         loginData
+        
       );
+      console.log("testt",response?.data?.Role)
 
       if (response.statusCode === 409) {
         toast.error(response.message);
       }
 
       const token = response.token || response.data?.token;
-
+    cookies.set("Role", String(response?.data?.Role ?? ""), {
+      expires: 7,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
       setToken(token);
-
+      setAdminToken(token);
       return response;
     } catch (error) {
       return rejectWithValue(
@@ -485,6 +495,11 @@ const authSlice = createSlice({
       state.userData = action.payload;
     },
 
+    logout: (state) => {
+      state.userData = null;
+      state.loading = false;
+      state.error = null;
+    },
 
     clearError: (state) => {
       state.error = null;
@@ -500,7 +515,7 @@ const authSlice = createSlice({
       .addCase(appLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.authData = action.payload;
-        doLogin(action.payload);
+        doLogin(action.payload, "user");
         state.error = null;
       })
 
@@ -515,7 +530,7 @@ const authSlice = createSlice({
       .addCase(adminLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.authData = action.payload;
-        doLogin(action.payload);
+        doLogin(action.payload, "admin");
         state.error = null;
       })
       .addCase(adminLogin.rejected, (state, action) => {

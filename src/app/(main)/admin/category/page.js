@@ -47,7 +47,7 @@ const Category = () => {
 
   const getAdminUserId = () => {
     try {
-      const userStr = localStorage.getItem('currentUserPlain');
+      const userStr = localStorage.getItem('adminCurrentUserPlain');
       if (!userStr) {
         console.error('No user data found');
         return null;

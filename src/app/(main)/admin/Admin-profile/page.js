@@ -21,10 +21,10 @@ const AdminProfile = () => {
 
 
   useEffect(() => {
-    const encryptedUser = localStorage.getItem('currentUser');
+    const encryptedUser = localStorage.getItem('adminCurrentUser');
     if (encryptedUser) {
       try {
-        const decryptedUser = getEncryptedLocalData('currentUser');
+        const decryptedUser = getEncryptedLocalData('adminCurrentUser');
         if (decryptedUser) {
           // Parse the JSON string
           const parsedUser = typeof decryptedUser === 'string' 

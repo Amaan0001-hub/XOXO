@@ -8,6 +8,7 @@ import { RotateCcw, User, Lock, Shield, Check, ArrowRight } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { decryptData } from "@/app/constants/encryption"
 
 
 const PUZZLE_WIDTH = 320
@@ -26,7 +27,7 @@ const getRandomPuzzleImage = () => {
 const preloadImage = (url, onLoaded) => {
   const img = new Image()
   img.onload = () => onLoaded(url)
-  img.onerror = () => onLoaded(url) 
+  img.onerror = () => onLoaded(url)
   img.src = url
 }
 
@@ -338,18 +339,75 @@ export default function LoginPage() {
     }
   }
 
+  // useEffect(() => {
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   const urlUsername = urlParams.get("username");
+  //   const urlPassword = urlParams.get("password");
+
+  //   if (urlUsername && urlPassword) {
+  //     try {
+  //       const decryptedUsername = decryptData(urlUsername);
+  //       const decryptedPassword = decryptData(urlPassword);
+
+  //       console.log("✅ Decrypted:", { decryptedUsername, decryptedPassword });
+
+  //       // ✅ Sirf EK "XO" hatao
+  //       let cleanUsername = decryptedUsername;
+  //       if (cleanUsername && cleanUsername.startsWith("XO")) {
+  //         cleanUsername = cleanUsername.substring(2);
+  //       }
+
+  //       console.log("✅ Final username:", cleanUsername);
+
+  //       setUsername(cleanUsername);
+  //       setPassword(decryptedPassword);
+  //       setIsVerified(true);
+
+  //       setTimeout(() => {
+  //         autoLogin(cleanUsername, decryptedPassword);
+  //       }, 300);
+
+  //     } catch (error) {
+  //       console.error("❌ Error:", error);
+  //       toast.error("Invalid login link");
+  //     }
+  //   }
+  // }, []);
   useEffect(() => {
-    const urlUsername = searchParams.get("username")
-    const urlPassword = searchParams.get("password")
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const urlUsername = urlParams.get("username");
+    const urlPassword = urlParams.get("password");
 
     if (urlUsername && urlPassword) {
-      setPassword(urlPassword)
-      setUsername(urlUsername)
+      try {
+        const decryptedUsername = decryptData(urlUsername);
+        const decryptedPassword = decryptData(urlPassword);
 
-      autoLogin(urlUsername, urlPassword)
+        console.log("✅ Decrypted:", {
+          decryptedUsername,
+          decryptedPassword,
+        });
+
+        // ✅ XO ko remove nahi karna hai
+        const finalUsername = decryptedUsername;
+
+        console.log("✅ Final username:", finalUsername);
+
+        setUsername(finalUsername);
+        setPassword(decryptedPassword);
+        setIsVerified(true);
+
+        setTimeout(() => {
+          autoLogin(finalUsername, decryptedPassword);
+        }, 300);
+
+      } catch (error) {
+        console.error("❌ Error:", error);
+        toast.error("Invalid login link");
+      }
     }
-  }, [])
-
+  }, []);
   const handleFieldChange = (field, value) => {
     switch (field) {
       case "username": setUsername(value); break
@@ -757,15 +815,14 @@ export default function LoginPage() {
                   background: isVerified
                     ? "rgba(34,211,238,0.1)"
                     : isFailed
-                    ? "rgba(239,68,68,0.1)"
-                    : "rgba(139,92,246,0.05)",
-                  border: `1px solid ${
-                    isVerified
+                      ? "rgba(239,68,68,0.1)"
+                      : "rgba(139,92,246,0.05)",
+                  border: `1px solid ${isVerified
                       ? "rgba(34,211,238,0.5)"
                       : isFailed
-                      ? "rgba(239,68,68,0.5)"
-                      : "rgba(139,92,246,0.2)"
-                  }`,
+                        ? "rgba(239,68,68,0.5)"
+                        : "rgba(139,92,246,0.2)"
+                    }`,
                 }}
               >
                 <div
@@ -783,10 +840,10 @@ export default function LoginPage() {
                   {isImageLoading
                     ? "Loading puzzle..."
                     : isVerified
-                    ? "Verified!"
-                    : isFailed
-                    ? "Try again"
-                    : "Drag the piece to match the puzzle"}
+                      ? "Verified!"
+                      : isFailed
+                        ? "Try again"
+                        : "Drag the piece to match the puzzle"}
                 </div>
                 <div
                   onMouseDown={isImageLoading ? undefined : onMouseDown}

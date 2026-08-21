@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
-import { doLogout, getToken, getUserId } from '@/app/api/auth';
+import { doUserLogout, getToken, getUserId } from '@/app/api/auth';
 import { getAllCountry, getUserDashboardDetails, sendOtpFundRequest, validateOtp, sendOtpRequestwalletaddress, updatePassword, getProfileDetails } from '@/app/redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -186,7 +186,7 @@ export default function Profile() {
 
   const signOut = (e) => {
     e.preventDefault();
-    doLogout();
+    doUserLogout();
     router.push('/user/login');
   };
 
@@ -227,7 +227,6 @@ export default function Profile() {
   };
 
   const handleSendPasswordOtp = async () => {
-    // Check if all password fields are filled
     const { oldPassword, newPassword, confirmPassword } = passwordFormik.values;
     if (!oldPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill all password fields first");

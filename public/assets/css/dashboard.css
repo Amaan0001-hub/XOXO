@@ -14135,8 +14135,8 @@ option:hover {
   height: 100%;
   min-width: 2px;
   border-radius: 999px;
- background: linear-gradient(90deg, #000000, rgb(30 30 30 / 80%));
-    box-shadow: 0 0 8px rgb(255 255 255 / 50%);
+  background: linear-gradient(90deg, var(--brand-green), #05a060);
+  box-shadow: 0 0 8px var(--brand-green);
   transition: width 0.5s ease;
 }
 

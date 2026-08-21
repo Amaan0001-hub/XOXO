@@ -13,7 +13,7 @@ export default function RankProgress({
   description = "Complete each rank within its time window to earn bonus rewards.",
   title = "Rank Progress",
 }) {
-  const pct = Math.min(100, Math.max(0, Number(progressPercent) || 10));
+  const pct = Math.min(100, Math.max(0, Math.round((totQualifyRnk / total) * 100)));
   const getRankImage = (rank) => {
     switch (rank?.toUpperCase()) {
       case "MANAGER":

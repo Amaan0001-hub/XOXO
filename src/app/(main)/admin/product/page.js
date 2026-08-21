@@ -62,7 +62,7 @@ const Product = () => {
 
   const getAdminUserId = () => {
     try {
-      const userStr = localStorage.getItem('currentUserPlain');
+      const userStr = localStorage.getItem('adminCurrentUserPlain');
       if (!userStr) return null;
       const user = JSON.parse(userStr);
       return user?.userData?.adminUserId || null;

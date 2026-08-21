@@ -16,12 +16,11 @@ export const getPlainLocalData = (key) => {
   return value ? JSON.parse(value) : null;
 };
 
-export const doLogin = (data) => {
-
+export const doLogin = (data, role = "user") => {
   if (data?.data === undefined) return false;
   const userData = data.data;
 
-  const userId = userData?.UserId || userData?.URID;
+  const userId = userData?.UserId || userData?.URID || userData?.adminUserId;
   const payload = {
     ...userData,
     token: data.token || data.data?.token || null,
@@ -31,29 +30,42 @@ export const doLogin = (data) => {
     userData: payload,
   };
 
+  // ✅ FIX: UserType sahi se set karein
+  let userType = "0"; // Default: Normal User
 
-  localStorage.setItem("emailId", userData?.Email)
-  // Store only the userData object in localStorage
-  localStorage.setItem("currentUser", encryptData(JSON.stringify(storedUser)));
-  // Also save decrypted/plain JSON for easier access when needed
-  localStorage.setItem("currentUserPlain", JSON.stringify(storedUser));
+  // Admin login detect karein (type: 2) OR explicit role passed in
+  const isAdmin =
+    role === "admin" ||
+    userData?.type === 2 ||
+    userData?.Role === "Admin" ||
+    userData?.role === "Admin";
 
-  // Also store user type in cookie so Next.js middleware can block server-side routes
-  const userType = userData?.userType ?? userData?.type;
-  if (userType !== undefined && userType !== null) {
-    Cookies.set('userType', String(userType), {
-      expires: 7,
-      secure: true,
-      sameSite: 'Strict',
-    });
+  const authLogin = userData?.AuthLogin || userData?.authLogin || userData?.username || null;
+
+  if (isAdmin) {
+    userType = "2";
+    localStorage.setItem("adminCurrentUser", encryptData(JSON.stringify(storedUser)));
+    localStorage.setItem("adminCurrentUserPlain", JSON.stringify(storedUser));
+    if (authLogin) {
+      localStorage.setItem("adminAuthLogin", encryptData(authLogin));
+    }
+  } else {
+    userType = "0";
+
+    localStorage.setItem("emailId", userData?.Email || userData?.email);
+    localStorage.setItem("currentUser", encryptData(JSON.stringify(storedUser)));
+    localStorage.setItem("currentUserPlain", JSON.stringify(storedUser));
+    if (authLogin) {
+      localStorage.setItem("AuthLogin", encryptData(authLogin));
+    }
   }
 
-
-  const authLogin =
-    userData?.AuthLogin || userData?.authLogin || userData?.username || null;
-  if (authLogin) {
-    localStorage.setItem("AuthLogin", encryptData(authLogin));
-  }
+  // ✅ Cookie set karein
+  Cookies.set('userType', userType, {
+    expires: 7,
+    secure: true,
+    sameSite: 'Strict',
+  });
 
   if (userId) {
     setUserId(userId);
@@ -61,6 +73,7 @@ export const doLogin = (data) => {
 
   return true;
 };
+
 
 export const getEmailId = () => {
   if (typeof window !== "undefined") {
@@ -84,9 +97,39 @@ export const AuthLogin = () => {
   return authLogin;
 };
 
+export const doUserLogout = () => {
+  // Clear only user-related localStorage items
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentUserPlain");
+  localStorage.removeItem("AuthLogin");
+  localStorage.removeItem("emailId");
+  localStorage.removeItem("UserId");
+  Cookies?.remove("token");
+  Cookies?.remove("userType");
+  sessionStorage?.clear();
+
+};
+
+export const doAdminLogout = () => {
+  // Clear only admin-related localStorage items
+  localStorage.removeItem("adminCurrentUser");
+  localStorage.removeItem("adminCurrentUserPlain");
+  localStorage.removeItem("adminAuthLogin");
+
+  // Clear admin-related cookies
+  Cookies?.remove("admintoken");
+  Cookies?.remove("Role");
+  Cookies?.remove("userType");
+  sessionStorage?.clear();
+
+};
+
 export const doLogout = () => {
   localStorage?.clear();
   Cookies?.remove("token");
+  Cookies?.remove("admintoken");
+  Cookies?.remove("Role");
+  sessionStorage?.clear();
   Cookies?.remove("userType");
 };
 
@@ -101,14 +144,37 @@ export const setToken = (token) => {
     });
   }
 };
-
+export const setAdminToken = (token) => {
+  if (token && typeof window !== "undefined") {
+    Cookies.set("admintoken", token, {
+      expires: 7,
+      secure: true,
+      sameSite: "Strict",
+    });
+  }
+};
 // setToken()
 
 export const getToken = () => {
+
+  if (typeof window !== "undefined") {
+    const pathname = window.location.pathname || "";
+    const isAdminContext =
+      pathname.startsWith("/admin") || pathname.startsWith("/ad-crm");
+
+    if (isAdminContext) {
+      const adminToken = Cookies.get("admintoken");
+      if (adminToken) return adminToken;
+    }
+  }
+
   const token = Cookies.get("token");
   return token ? token : null;
 };
-
+export const getAdminToken = () => {
+  const token = Cookies.get("admintoken");
+  return token ? token : null;
+};
 export const setUserId = (UserId) => {
   if (UserId && typeof window !== "undefined") {
     localStorage.setItem("UserId", encryptData(UserId));
@@ -178,11 +244,19 @@ export const getUserId = () => {
 };
 
 
-
+export const getAdminEncryptedLocalData = () => {
+  if (typeof window === "undefined") return null;
+  return getEncryptedLocalData("adminCurrentUser");
+};
 
 export const getAdminUserId = () => {
   if (typeof window !== "undefined") {
-    const currentUser = getEncryptedLocalData("currentUser");
+    let currentUser = getEncryptedLocalData("adminCurrentUser");
+
+    if (!currentUser) {
+      currentUser = getEncryptedLocalData("currentUser");
+    }
+
     if (currentUser) {
       const userData = typeof currentUser === 'string' ? JSON.parse(currentUser) : currentUser;
       const profile = userData?.userData || userData;
@@ -513,7 +587,7 @@ export const putRequestWithToken = async (endpoint, data) => {
 
     const headers = {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json' // Add this
+      'Content-Type': 'application/json'
     };
 
     const response = await axios.put(`${BASE_URL}${endpoint}`, data, { headers });
@@ -556,35 +630,31 @@ export const postImageWithParams = async (endpoint, data, imageFile) => {
   const token = getToken();
   if (!token) throw new Error("No token found");
 
-  // 🔹 1. Create FormData (only for image)
   const formData = new FormData();
   if (imageFile) {
-    formData.append("profileImage", imageFile); // 🔸 Must match backend key
+    formData.append("profileImage", imageFile);
   }
 
-  // 🔹 2. Prepare query params
   const queryParams = {
-    ...data, // like name, email, sellerId, etc.
+    ...data, 
   };
 
-  // 🔹 3. Make API call
   const response = await axios.post(`${BASE_URL}${endpoint}`, formData, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "multipart/form-data",
     },
-    params: queryParams, // 👈 text data sent in URL
+    params: queryParams,
   });
 
   return response.data;
 };
 
-// 🔹 API helper for adding a ticket reply
+
 export const addTicketReplyApi = async (endpoint, { ticketId, createdBy, message, status = 1, seen = 1, imageFile }) => {
   try {
     const token = getToken();
 
-    // ✅ Build FormData
     const formData = new FormData();
     if (imageFile) {
       formData.append("ImagePath", imageFile);
@@ -592,12 +662,10 @@ export const addTicketReplyApi = async (endpoint, { ticketId, createdBy, message
       formData.append("ImagePath", "");
     }
 
-    // ✅ Build full URL
     const url = `${BASE_URL}${endpoint}?TicketId=${ticketId}&CreatedBy=${createdBy}&Message=${encodeURIComponent(
       message
     )}&Status=${status}&Seen=${seen}`;
 
-    // ✅ Axios POST with token & form data
     const response = await axios.post(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -607,7 +675,6 @@ export const addTicketReplyApi = async (endpoint, { ticketId, createdBy, message
 
     return response.data;
   } catch (error) {
-    // Throw formatted error for thunk to handle
     throw new Error(error.response?.data?.message || error.message || "Something went wrong");
   }
 };

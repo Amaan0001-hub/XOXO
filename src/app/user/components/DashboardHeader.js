@@ -22,7 +22,7 @@ import {
   FiAward ,
   FiBookOpen // Added for Fund Director icon
 } from "react-icons/fi";
-import { doLogout } from "@/app/api/auth";
+import { doUserLogout } from "@/app/api/auth";
 
 export default function DashboardHeader({
   sidebarOpen,
@@ -45,7 +45,7 @@ export default function DashboardHeader({
   };
 
   const handleSignOut = () => {
-    doLogout()
+    doUserLogout()
     router.push('/user/login');
   };
 
@@ -190,7 +190,7 @@ export default function DashboardHeader({
         </Link>
         <Link
           href="/user/login"
-          onClick={doLogout}
+          onClick={doUserLogout}
           className="ni"
         >
           <span className="ic">
