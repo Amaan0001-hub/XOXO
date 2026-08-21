@@ -9,7 +9,7 @@ import { RiMoonLine, RiSunLine, RiEyeLine, RiEyeOffLine, RiAdminLine, RiLockLine
 import { useTheme } from '@/components/ThemeProvider';
 import { useEffect } from 'react';
 import { adminLogin } from '@/app/redux/slices/authSlice';
-import { getToken, getEncryptedLocalData } from '@/app/api/auth';
+import { getAdminToken, getAdminEncryptedLocalData } from '@/app/api/auth';
 import toast from 'react-hot-toast';
 
 const adminLoginSchema = Yup.object().shape({
@@ -28,8 +28,8 @@ export default function AdminLogin() {
     useEffect(() => {
         // Check if already authenticated, redirect to dashboard
         const checkAuth = () => {
-            const token = getToken();
-            const userData = getEncryptedLocalData('currentUser');
+            const token = getAdminToken();
+            const userData = getAdminEncryptedLocalData();
             if (token && userData) {
                 const profile = typeof userData === 'string' ? JSON.parse(userData) : userData;
                 const user = profile?.userData ?? profile;
@@ -57,14 +57,12 @@ export default function AdminLogin() {
             if (result.statusCode === 200) {
                 toast.success(result.message || 'Admin login successful!');
                 resetForm();
-                // Dispatch custom event for auth change
                 window.dispatchEvent(new Event('auth-change'));
                 router.push('/admin');
             } else if (result.statusCode === 409) {
-                // Error message already shown by toast in authSlice
             }
         } catch (err) {
-            // Error handled by the authSlice toast
+            
             console.error('Admin login failed:', err);
         } finally {
             setSubmitting(false);

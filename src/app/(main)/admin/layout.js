@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import MeMenu from '@/components/MeMenu';
 import { RiNotification3Line, RiMenuLine } from 'react-icons/ri';
-import { getToken, getEncryptedLocalData } from '@/app/api/auth';
+import { getAdminToken, getAdminEncryptedLocalData } from '@/app/api/auth';
 // import AdminLogin from './login/page';
 
 export default function AdminLayout({ children }) {
@@ -17,8 +17,11 @@ export default function AdminLayout({ children }) {
 
   // Check authentication status
   const checkAuth = useCallback(() => {
-    const token = getToken();
-    const userData = getEncryptedLocalData('currentUser');
+    // ✅ FIX: Admin ka apna admin-only token/data check karo (admintoken + adminCurrentUser),
+    // shared "token"/"currentUser" ab sirf normal user session ke liye hai — isliye
+    // doosre tab me user-login karne se ye admin session ab affect nahi hota.
+    const token = getAdminToken();
+    const userData = getAdminEncryptedLocalData();
     if (token && userData) {
       setIsAuthenticated(true);
     } else {
@@ -42,7 +45,6 @@ export default function AdminLayout({ children }) {
     
     // Fallback: poll for auth changes every 500ms
     const pollInterval = setInterval(checkAuth, 500);
-    
     return () => {
       window.removeEventListener('auth-change', handleAuthChange);
       window.removeEventListener('focus', checkAuth);

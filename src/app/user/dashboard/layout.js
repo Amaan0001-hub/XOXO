@@ -44,6 +44,7 @@ export default function RootLayout({ children }) {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  
   if (pageLoading) {
     return (
       <>

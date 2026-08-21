@@ -21,7 +21,7 @@ export default function ClientActivityTracker() {
     const logoutUser = () => {
       const userType = getCookie("userType");
 
-      // Clear cookies
+      // Clear user cookies
       document.cookie =
         "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       document.cookie =
@@ -29,10 +29,15 @@ export default function ClientActivityTracker() {
       document.cookie =
         "userType=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
+      // Clear admin cookies
+      document.cookie =
+        "admintoken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie =
+        "Role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
       // Admin
       if (String(userType) === "2") {
-        router.replace("/xoxo-adminlogin");
+        router.replace("/ad-crm");
       }
       // Normal User
       else {

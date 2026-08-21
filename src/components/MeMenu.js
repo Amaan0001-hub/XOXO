@@ -10,7 +10,7 @@ import {
   RiAccountPinCircleLine
 } from 'react-icons/ri';
 import { useDispatch } from 'react-redux';
-import { doLogout, getEncryptedLocalData } from '@/app/api/auth';
+import { doAdminLogout, getEncryptedLocalData } from '@/app/api/auth';
 import { useRouter } from 'next/navigation';
 
 
@@ -21,12 +21,12 @@ export default function MeMenu() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // Get user data from localStorage
+  // Get admin data from localStorage
   useEffect(() => {
-    const encryptedUser = localStorage.getItem('currentUser');
+    const encryptedUser = localStorage.getItem('adminCurrentUser');
     if (encryptedUser) {
       try {
-        const decryptedUser = getEncryptedLocalData('currentUser');
+        const decryptedUser = getEncryptedLocalData('adminCurrentUser');
         if (decryptedUser && typeof decryptedUser === 'object') {
           setUserData(decryptedUser);
         } else {
@@ -55,9 +55,9 @@ export default function MeMenu() {
 
 
     const handleLogout = () => {
-    doLogout();
+    doAdminLogout();
     // window.dispatchEvent(new Event('auth-change'));
-    window.location.replace('/xoxo-adminlogin');
+    window.location.replace('/ad-crm');
   }
 
   const menuItems = [

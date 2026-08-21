@@ -9,7 +9,7 @@ import { getUserDashboardDetails } from "../../redux/slices/authSlice";
 import { Getusernotification, updateNotificationsCount } from "../../redux/slices/ticketSlice";
 import { getUserReffrellLink } from "../../redux/slices/walletSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserId, doLogout } from "@/app/api/auth";
+import { getUserId, doUserLogout } from "@/app/api/auth";
 import Link from 'next/link';
 import { FiLogOut } from "react-icons/fi";
 
@@ -584,7 +584,7 @@ export default function DashboardHeader({ theme, toggleTheme }) {
                       whiteSpace: "nowrap",
                     }}
                     onClick={() => {
-                      doLogout();
+                      doUserLogout();
                       setShowUserMenu(false);
                     }}
                   >
