@@ -199,72 +199,73 @@ const WalletStatement = () => {
     <div className="table-card">
         <div className="table-responsive">
           <table className="income-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Date</th>
-                <th>Credit</th>
-                <th>Debit</th>
-                <th>Type</th>
-                <th>Remark</th>
-                <th>TransHash</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="no-data">
-                    Loading...
-                  </td>
-                </tr>
-              ) : paginatedData.length > 0 ? (
-                paginatedData.map((item, idx) => (
-                  <tr key={idx}>
-                    <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                    <td className="credit-positive">{item.CreatedDate || item.createdDate || "-"}</td>
-                    <td className="debit-negative">{item.credit ?? 0}</td>
-                    <td className="remark-text">{item.debit ?? 0}</td>
-                    <td className="status-badge status-1">{item.transType || "-"}</td>
-                    <td>{item.remark || "-"}</td>
-                  <td>
-  <div className="d-flex align-items-center gap-2">
-    <span
-      title={item.transHash || "-"}
-      style={{
-        maxWidth: "180px",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-        display: "inline-block"
-      }}
-    >
-      {item.transHash || "-"}
-    </span>
-
-    {item.transHash && (
-      <button
-        type="button"
-        className="btn btn-sm p-0"
-        title="Copy Transaction Hash"
-        onClick={() => navigator.clipboard.writeText(item.transHash)}
-      >
-        <i className="fa fa-copy"></i>
-      </button>
-    )}
-  </div>
-</td>
-                    <td className="status-badge pending-bg status-1">{item.status || "-"}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="no-data">
-                    No records found.
-                  </td>
-                </tr>
+           <thead>
+  <tr>
+    <th>#</th>
+    <th>Date</th>
+    <th>Credit</th>
+    <th>Debit</th>
+    <th>Type</th>
+    <th>Remark</th>
+    {activeTab === "Withdrawal" && <th>TransHash</th>}
+    <th>Status</th>
+  </tr>
+</thead>
+<tbody>
+  {loading ? (
+    <tr>
+      <td colSpan={activeTab === "Withdrawal" ? 8 : 7} className="no-data">
+        Loading...
+      </td>
+    </tr>
+  ) : paginatedData.length > 0 ? (
+    paginatedData.map((item, idx) => (
+      <tr key={idx}>
+        <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
+        <td className="credit-positive">{item.CreatedDate || item.createdDate || "-"}</td>
+        <td className="debit-negative">{item.credit ?? 0}</td>
+        <td className="remark-text">{item.debit ?? 0}</td>
+        <td className="status-badge status-1">{item.transType || "-"}</td>
+        <td>{item.remark || "-"}</td>
+        {activeTab === "Withdrawal" && (
+          <td>
+            <div className="d-flex align-items-center gap-2">
+              <span
+                title={item.transHash || "-"}
+                style={{
+                  maxWidth: "180px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "inline-block"
+                }}
+              >
+                {item.transHash || "-"}
+              </span>
+              {item.transHash && (
+                <button
+                  type="button"
+                  className="btn btn-sm p-0"
+                  title="Copy Transaction Hash"
+                  onClick={() => navigator.clipboard.writeText(item.transHash)}
+                >
+                  <i className="fa fa-copy"></i>
+                </button>
               )}
-            </tbody>
+            </div>
+          </td>
+        )}
+        <td className="status-badge pending-bg status-1">{item.status || "-"}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={activeTab === "Withdrawal" ? 8 : 7} className="no-data">
+        No records found.
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
 </div>
