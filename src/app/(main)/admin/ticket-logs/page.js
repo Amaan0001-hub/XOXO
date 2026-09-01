@@ -44,58 +44,57 @@ const TicketLogs = () => {
   const tableColumns = Columns?.map((col) =>
     col.id === 'Status'
       ? {
+        key: col.id,
+        label: col.label,
+        render: (value) => (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${value === 1
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+              }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${value === 1 ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            {value === 1 ? 'Open' : 'Closed'}
+          </span>
+        ),
+      }
+      : col.id === 'CreatedDate'
+        ? {
           key: col.id,
           label: col.label,
           render: (value) => (
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                value === 1
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${value === 1 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              {value === 1 ? 'Open' : 'Closed'}
+            <span className="text-gray-700 dark:text-gray-300">
+              {formatDate(value)}
             </span>
           ),
         }
-      : col.id === 'CreatedDate'
-        ? {
+        : col.id === 'action'
+          ? {
+            key: col.id,
+            label: col.label,
+            render: (value, row) => (
+              <button
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  dispatch(getAllTicketByTicketId(row.TicketId))
+                  setShowPopup(true)
+                }}
+              >
+                <FaEye className="text-xs" />
+                Details
+              </button>
+            ),
+          }
+          : {
             key: col.id,
             label: col.label,
             render: (value) => (
               <span className="text-gray-700 dark:text-gray-300">
-                {formatDate(value)}
+                {value || '-'}
               </span>
             ),
-          }
-        : col.id === 'action'
-          ? {
-              key: col.id,
-              label: col.label,
-              render: (value, row) => (
-                <button
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    dispatch(getAllTicketByTicketId(row.TicketId))
-                    setShowPopup(true)
-                  }}
-                >
-                  <FaEye className="text-xs" />
-                  Details
-                </button>
-              ),
-            }
-          : { 
-              key: col.id, 
-              label: col.label,
-              render: (value) => (
-                <span className="text-gray-700 dark:text-gray-300">
-                  {value || '-'}
-                </span>
-              ),
-            },
+          },
   )
 
   const handleRowClick = (row) => {
@@ -225,23 +224,21 @@ const TicketLogs = () => {
                     </div>
                     <div className="col-span-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
-                      <p className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mt-1 ${
-                        ticket.StatusType?.toLowerCase() === 'open'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          ticket.StatusType?.toLowerCase() === 'open'
-                            ? 'bg-green-500'
-                            : 'bg-red-500'
-                        }`}></span>
+                      <p className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mt-1 ${ticket.StatusType?.toLowerCase() === 'open'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${ticket.StatusType?.toLowerCase() === 'open'
+                          ? 'bg-green-500'
+                          : 'bg-red-500'
+                          }`}></span>
                         {ticket.StatusType || 'N/A'}
                       </p>
                     </div>
                   </div>
 
                   {/* Image */}
-                  {ticket.ImagePath && (
+                  {ticket.ImagePath ? (
                     <div className="mt-4">
                       <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                         <FaImage className="text-emerald-500" />
@@ -253,7 +250,7 @@ const TicketLogs = () => {
                         className="object-cover w-20 h-20 rounded-lg border border-gray-200 dark:border-gray-700"
                       />
                     </div>
-                  )}
+                  ) : "No Image"}
 
                   {/* Conversation */}
                   <div className="mt-4">

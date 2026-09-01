@@ -82,11 +82,10 @@ const NewTicket = () => {
         label: col.label,
         render: (value) => (
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-              value === 1
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            }`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${value === 1
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+              }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${value === 1 ? 'bg-green-500' : 'bg-red-500'}`}></span>
             {value === 1 ? 'Open' : 'Closed'}
@@ -103,7 +102,7 @@ const NewTicket = () => {
               <button
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-sm"
                 onClick={(e) => {
-                  e.stopPropagation() 
+                  e.stopPropagation()
                   dispatch(updateUserReplyCount({ TicketId: row.TicketId }))
                   dispatch(getAllTicketByTicketId(row.TicketId))
                   setShowPopup(true)
@@ -153,7 +152,7 @@ const NewTicket = () => {
       formData.append('TicketId', ticket.TicketId)
       formData.append('Message', replyMessage)
       formData.append('CreatedBy', ticket.TicketId)
-      formData.append('Status', 0) 
+      formData.append('Status', 0)
       formData.append('Seen', 0)
       formData.append('ImagePath', ticket.ImagePath)
 
@@ -203,13 +202,13 @@ const NewTicket = () => {
   const allMessages = [
     ...(ticketDetails?.replies?.length
       ? ticketDetails?.replies.map((item, index) => ({
-          id: index,
-          message: item.Message,
-          timestamp: formatDate(item.ReplyDate),
-          Name: item.Name,
-          Status: item.Status,
-          user: item.appUserId ? 'User' : 'Admin',
-        }))
+        id: index,
+        message: item.Message,
+        timestamp: formatDate(item.ReplyDate),
+        Name: item.Name,
+        Status: item.Status,
+        user: item.appUserId ? 'User' : 'Admin',
+      }))
       : []),
     ...replies,
   ].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
@@ -261,134 +260,135 @@ const NewTicket = () => {
         </div>
 
         {/* Ticket Details Popup */}
-  {showPopup &&
-  ticketDetails?.ticket &&
-  ticketDetails.ticket.map((ticket, index) => (
-   
-    <div
-      key={index}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-    >
-      <div
-        className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col h-[95vh] max-h-[95vh] animate-in zoom-in-95 duration-200 overflow-hidden"
-      >
+        {showPopup &&
+          ticketDetails?.ticket &&
+          ticketDetails.ticket.map((ticket, index) => (
 
-        {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <RiTicketLine className="text-xl" />
-            Ticket Details
-          </h2>
+            <div
+              key={index}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            >
+              <div
+                className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col  animate-in zoom-in-95 duration-200 overflow-hidden"
+              >
 
-          <button
-            onClick={() => {
-              dispatch(clearTicketDetails())
-              setShowPopup(false)
-            }}
-            className="text-white/80 hover:text-white"
-          >
-            <FaTimes className="text-xl" />
-          </button>
-        </div>
+                {/* Header */}
+                <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
+                  <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <RiTicketLine className="text-xl" />
+                    Ticket Details
+                  </h2>
 
-        {/* Ticket Info - Reduced Height */}
-        <div className="flex-shrink-0 p-3 space-y-3 max-h-[25vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <FaUser className="text-emerald-500"/>
-                User ID
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {ticket.UserID || "-"}
-              </p>
-            </div>
+                  <button
+                    onClick={() => {
+                      dispatch(clearTicketDetails())
+                      setShowPopup(false)
+                    }}
+                    className="text-white/80 hover:text-white"
+                  >
+                    <FaTimes className="text-xl" />
+                  </button>
+                </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <FaCalendarAlt className="text-emerald-500"/>
-                Date
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {formatDate(ticket.CreatedDate)}
-              </p>
-            </div>
+                {/* Ticket Info - Reduced Height */}
+                <div className="flex-shrink-0 p-3 space-y-3 max-h-[25vh] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <FaUser className="text-emerald-500" />
+                        User ID
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {ticket.UserID || "-"}
+                      </p>
+                    </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500">
-                Name
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {ticket.UserName || "-"}
-              </p>
-            </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <FaCalendarAlt className="text-emerald-500" />
+                        Date
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {formatDate(ticket.CreatedDate)}
+                      </p>
+                    </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500">
-                Type
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {ticket.TicketType || "-"}
-              </p>
-            </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500">
+                        Name
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {ticket.UserName || "-"}
+                      </p>
+                    </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500">
-                Subject
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {ticket.Subject || "-"}
-              </p>
-            </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500">
+                        Type
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {ticket.TicketType || "-"}
+                      </p>
+                    </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500">
-                Status
-              </p>
-              <p className="text-sm font-semibold mt-0.5 text-gray-400">
-                {ticket.StatusType || "-"}
-              </p>
-            </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500">
+                        Subject
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {ticket.Subject || "-"}
+                      </p>
+                    </div>
 
-            <div className="col-span-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
-              <p className="text-xs text-gray-500">
-                Image
-              </p>
-              {ticket.ImagePath ? (
-                <img
-                  src={ticket.ImagePath}
-                  alt="Ticket"
-                  className="
-                    mt-1.5
-                    w-14
-                    h-14
-                    object-cover
-                    rounded-md
-                    border
-                    cursor-pointer
-                  "
-                  onClick={() =>
-                    window.open(ticket.ImagePath,"_blank")
-                  }
-                />
-              ) : (
-                <p className="text-sm font-semibold">
-                  -
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500">
+                        Status
+                      </p>
+                      <p className="text-sm font-semibold mt-0.5 text-gray-400">
+                        {ticket.StatusType || "-"}
+                      </p>
+                    </div>
 
-        {/* Conversation - Maximum Height */}
-        <div className="flex flex-col flex-1 min-h-[300px] px-5 pb-2 overflow-hidden">
-          <h3 className="text-sm font-semibold mb-2 flex items-center text-gray-700 gap-2 flex-shrink-0">
-            <RiMessageLine className="text-emerald-500"/>
-            Conversation
-          </h3>
+                    <div className="col-span-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-500">
+                        Image
+                      </p>
+                      {ticket.ImagePath ? (
+                        <img
+                          src={ticket.ImagePath}
+                          alt="Ticket"
+                          className="
+                            mt-1.5
+                            w-14
+                            h-14
+                            object-cover
+                            rounded-md
+                            border
+                            cursor-pointer
+                          "
+                          onClick={() =>
+                            window.open(ticket.ImagePath, "_blank")
+                          }
+                        />
 
-          <div
-            className="
+                      ) : (
+                        <p className="text-sm font-semibold">
+                          No Image
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conversation - Maximum Height */}
+                <div className="flex flex-col flex-1 min-h-[300px] px-5 pb-2 overflow-hidden">
+                  <h3 className="text-sm font-semibold mb-2 flex items-center text-gray-700 gap-2 flex-shrink-0">
+                    <RiMessageLine className="text-emerald-500" />
+                    Conversation
+                  </h3>
+
+                  <div
+                    className="
               flex-1
               min-h-[250px]
               max-h-[500px]
@@ -401,72 +401,70 @@ const NewTicket = () => {
               scrollbar-thin
               scrollbar-thumb-gray-400
             "
-          >
-            {allMessages
-              ?.filter(
-                msg =>
-                msg &&
-                msg.message &&
-                msg.message.trim() !== ''
-              )
-              .map((message, index) => {
-                const admin = message.Status === 0;
-
-                return (
-                  <div
-                    key={message.id || index}
-                    className={`flex w-full ${
-                      admin ? "justify-end" : "justify-start"
-                    }`}
                   >
-                    <div
-                      className={`
+                    {allMessages
+                      ?.filter(
+                        msg =>
+                          msg &&
+                          msg.message &&
+                          msg.message.trim() !== ''
+                      )
+                      .map((message, index) => {
+                        const admin = message.Status === 0;
+
+                        return (
+                          <div
+                            key={message.id || index}
+                            className={`flex w-full ${admin ? "justify-end" : "justify-start"
+                              }`}
+                          >
+                            <div
+                              className={`
                         max-w-[85%]
                         p-3
                         rounded-xl
                         text-sm
-                        ${
-                          admin
-                          ?
-                          "bg-emerald-500 text-white rounded-br-none"
-                          :
-                          "bg-white dark:bg-gray-800 rounded-bl-none shadow border"
-                        }
+                        ${admin
+                                  ?
+                                  "bg-emerald-500 text-white rounded-br-none"
+                                  :
+                                  "bg-white dark:bg-gray-800 rounded-bl-none shadow border"
+                                }
                       `}
-                    >
-                      {!admin && (
-                        <p className="text-xs font-semibold text-emerald-600 mb-1">
-                          {message.Name || "User"}
-                        </p>
-                      )}
+                            >
+                              {!admin && (
+                                <p className="text-xs font-semibold text-emerald-600 mb-1">
+                                  {message.Name || "User"}
+                                </p>
+                              )}
 
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: message.message
-                        }}
-                      />
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: message.message
+                                }}
+                              />
 
-                      {message.ImagePath && (
-                        <img
-                          src={message.ImagePath}
-                          className="mt-2 w-28 h-28 object-cover rounded-lg border"
-                          alt="Message attachment"
-                        />
-                      )}
+                              {message.ImagePath && (
+                                <img
+                                  src={message.ImagePath}
+                                  className="mt-2 w-28 h-28 object-cover rounded-lg border"
+                                  alt="Message attachment"
+                                />
+                              )}
 
-                      <span className="text-xs  opacity-70 block mt-2">
-                        {message.timestamp || ""}
-                      </span>
-                    </div>
+                              <span className="text-xs  opacity-70 block mt-2">
+                                {message.timestamp || ""}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })}
                   </div>
-                )
-              })}
-          </div>
-        </div>
+                </div>
 
-        {/* Reply Section - Always Visible */}
-        <div
-          className="
+                {/* Reply Section - Always Visible */}
+                <div
+                  className="
             flex-shrink-0
             p-3
             bg-white
@@ -476,15 +474,15 @@ const NewTicket = () => {
             dark:border-gray-700
             mt-auto
           "
-        >
-          <textarea
-            value={replyMessage}
-            onChange={(e) =>
-              setReplyMessage(e.target.value)
-            }
-            rows={2}
-            placeholder="Type your reply..."
-            className="
+                >
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) =>
+                      setReplyMessage(e.target.value)
+                    }
+                    rows={2}
+                    placeholder="Type your reply..."
+                    className="
               w-full
               p-3
               rounded-xl
@@ -501,14 +499,14 @@ const NewTicket = () => {
               focus:ring-emerald-500/40
               transition-all
             "
-          />
+                  />
 
-          <div className="flex justify-end gap-2 mt-3">
-            {/* Send Reply */}
-            <button
-              onClick={() => handleReplySubmit(ticket)}
-              disabled={replyLoading}
-              className="
+                  <div className="flex justify-end gap-2 mt-3">
+                    {/* Send Reply */}
+                    <button
+                      onClick={() => handleReplySubmit(ticket)}
+                      disabled={replyLoading}
+                      className="
                 inline-flex
                 items-center
                 gap-1.5
@@ -528,24 +526,24 @@ const NewTicket = () => {
                 disabled:opacity-50
                 disabled:cursor-not-allowed
               "
-            >
-              {
-                replyLoading
-                ?
-                "Sending..."
-                :
-                <>
-                  <FaPaperPlane className="text-xs"/>
-                  Send Reply
-                </>
-              }
-            </button>
+                    >
+                      {
+                        replyLoading
+                          ?
+                          "Sending..."
+                          :
+                          <>
+                            <FaPaperPlane className="text-xs" />
+                            Send Reply
+                          </>
+                      }
+                    </button>
 
-            {/* Close Ticket */}
-            <button
-              onClick={() => handleCloseTicket(ticket)}
-              disabled={closeLoading}
-              className="
+                    {/* Close Ticket */}
+                    <button
+                      onClick={() => handleCloseTicket(ticket)}
+                      disabled={closeLoading}
+                      className="
                 inline-flex
                 items-center
                 gap-1.5
@@ -565,39 +563,39 @@ const NewTicket = () => {
                 disabled:opacity-50
                 disabled:cursor-not-allowed
               "
-            >
-              {
-                closeLoading
-                ?
-                "Closing..."
-                :
-                <>
-                  <RiCloseCircleLine className="text-sm"/>
-                  Close Ticket
-                </>
-              }
-            </button>
-          </div>
+                    >
+                      {
+                        closeLoading
+                          ?
+                          "Closing..."
+                          :
+                          <>
+                            <RiCloseCircleLine className="text-sm" />
+                            Close Ticket
+                          </>
+                      }
+                    </button>
+                  </div>
 
-          {closeError && (
-            <div className="flex items-center gap-1 text-xs text-red-500 mt-2">
-              <FaExclamationCircle/>
-              {closeError}
+                  {closeError && (
+                    <div className="flex items-center gap-1 text-xs text-red-500 mt-2">
+                      <FaExclamationCircle />
+                      {closeError}
+                    </div>
+                  )}
+
+                  {closeSuccess && (
+                    <div className="flex items-center gap-1 text-xs text-green-600 mt-2">
+                      <FaCheckCircle />
+                      {closeSuccess}
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
-          )}
-
-          {closeSuccess && (
-            <div className="flex items-center gap-1 text-xs text-green-600 mt-2">
-              <FaCheckCircle/>
-              {closeSuccess}
-            </div>
-          )}
-        </div>
-
-      </div>
-    </div>
-  ))
-}
+          ))
+        }
       </div>
     </div>
   )
