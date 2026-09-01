@@ -11,7 +11,7 @@ import { usernameLoginId, clearUsernameData } from '@/app/redux/slices/adminMast
 const LeaseAgentPage = () => {
   const dispatch = useDispatch();
   const { error: usernameError, rechargeTransactionData, usernameData } = useSelector((state) => state.adminMaster ?? {});
-
+   console.log("TYTU",usernameData)
   const { getKit } = useSelector((state) => state.event);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -30,16 +30,16 @@ const LeaseAgentPage = () => {
   const [roiAmount, setRoiAmount] = useState('');
   const [roiAmountError, setRoiAmountError] = useState('');
 
-  // Fetch kit data when usernameData changes
+  // Fetch kit data when userid changes
   useEffect(() => {
     const fetchKitData = async () => {
-      if (usernameData && usernameData.urid) {
-        await dispatch(getBindAdminKit(usernameData.urid));
+      if (userid && userid.trim()) {
+        await dispatch(getBindAdminKit(userid));
       }
     };
 
     fetchKitData();
-  }, [usernameData, dispatch]);
+  }, [userid, dispatch]);
 
 
   // Userid verification effect
@@ -152,8 +152,8 @@ const LeaseAgentPage = () => {
       return;
     }
 
-    // Check if usernameData exists and has urid
-    if (!usernameData || !usernameData.urid) {
+    // Check if userid exists
+    if (!userid || !userid.trim()) {
       toast.error('Please verify the User ID first');
       return;
     }
@@ -162,7 +162,7 @@ const LeaseAgentPage = () => {
 
     // Call getRechargeTransactionAdmin API
     const rechargePayload = {
-      urid: usernameData.urid,
+      authlogin: userid,
       packageType: packageType.value,
       usdtValue: parseFloat(roiAmount),
     };
@@ -323,9 +323,9 @@ const LeaseAgentPage = () => {
                 }),
               }}
               isSearchable
-              isDisabled={!usernameData?.urid || packageOptions.length === 0}
+              isDisabled={!userid || packageOptions.length === 0}
             />
-            {!usernameData?.urid && (
+            {!userid && (
               <div className="mt-2 text-xs text-blue-500">
                 Please verify User ID first to Package Availabe
               </div>
@@ -341,7 +341,7 @@ const LeaseAgentPage = () => {
           <div className="flex justify-end md:col-span-2 lg:col-span-4">
             <button
               type="submit"
-              disabled={loading || !usernameData?.urid || !packageType}
+              disabled={loading || !userid || !packageType}
               className="px-6 py-3 text-sm font-semibold text-white transition-all rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <div className="flex items-center justify-center gap-2">
