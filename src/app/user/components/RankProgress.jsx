@@ -15,24 +15,26 @@ export default function RankProgress({
 }) {
   const pct = Math.min(100, Math.max(0, Math.round((totQualifyRnk / total) * 100)));
   const getRankImage = (rank) => {
+
+    console.log("rank", rank);
     switch (rank?.toUpperCase()) {
       case "MANAGER":
-        return "/Rank/1.png";
+        return "/Rank/manager.mp4";
 
       case "BRONZE":
         return "/Rank/2.png";
 
       case "SILVER":
         return "/Rank/3.png";
-        
+
       case "GOLD":
-        return "/Rank/4.png";
+        return "/Rank/gold.mp4";
 
       case "RUBY":
-        return "/Rank/5.png";
+        return "/Rank/ruby.mp4";
 
       case "PLATINUM":
-        return "/Rank/6.png";
+        return "/Rank/platinum.mp4";
 
       case "DIAMOND":
         return "/Rank/7.png";
@@ -105,10 +107,22 @@ export default function RankProgress({
       </div>
       <div className="col-md-4 mt-2">
         <div className="it bg-g gl gl-g">
-          <img
-            src={getRankImage(activeRank)} alt={activeRank}
-            className="Rank-img"
-          />
+          {getRankImage(activeRank).endsWith('.mp4') ? (
+            <video
+              src={getRankImage(activeRank)}
+              alt={activeRank}
+              style={{ width: '100%', height: '260px', objectFit: 'cover' }}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <img
+              src={getRankImage(activeRank)} alt={activeRank}
+              className="Rank-img"
+            />
+          )}
           {/* <div className="text-center-div">
             <div className="it-val">$317.45</div>
             <div className="it-lbl">Pair Volume Income</div>

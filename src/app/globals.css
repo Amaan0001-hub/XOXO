@@ -16,7 +16,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
+
   /* Custom primary colors */
   --color-primary-50: #f0fdfa;
   --color-primary-100: #ccfbf1;
@@ -29,10 +29,10 @@
   --color-primary-800: #115e59;
   --color-primary-900: #134e4a;
   --color-primary-950: #042f2e;
-  
+
   /* Custom conversation background color */
   --color-conversation-bg: #d1fae5;
-  
+
   /* Custom background colors */
   --color-bg-main: #ffffff;
   --color-bg-sidebar: #f9fafb;
@@ -98,7 +98,10 @@ body {
 }
 
 /* Remove transition for faster interactions */
-input, textarea, select, button {
+input,
+textarea,
+select,
+button {
   transition: none;
 }
 
@@ -107,6 +110,7 @@ input, textarea, select, button {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -122,6 +126,7 @@ input, textarea, select, button {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -148,9 +153,9 @@ button:focus {
 }
 
 
-.css-1sbrxjn-control{
-      background-color: rgb(255 255 255 / 5%);
-    border-color: rgb(0 0 0 / 15%);
+.css-1sbrxjn-control {
+  background-color: rgb(255 255 255 / 5%);
+  border-color: rgb(0 0 0 / 15%);
 }
 
 .react-hot-toast {
@@ -170,4 +175,3 @@ button:focus {
 .react-hot-toast .toast-body {
   color: inherit !important;
 }
-
