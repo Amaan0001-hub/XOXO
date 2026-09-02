@@ -221,7 +221,7 @@ setSuccessRate(prev => {
 
 const fetchTransactionLog = useCallback(async () => {
   try {
-    const response = await fetch('https://apis.arbionai.com/api/Authentication/getAllTransactionLog_xoxo', {
+    const response = await fetch('https://apis.abrixlabs.live/api/Authentication/getAllTransactionLog_xoxo', {
       headers: { 'Content-Type': 'application/json' },
       cache: 'no-cache'
     });
